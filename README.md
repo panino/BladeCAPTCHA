@@ -77,6 +77,8 @@ Ejemplo: [`public/examples/manual-verification.html`](public/examples/manual-ver
 
 Permite controlar cuándo iniciar el desafío y qué hacer con la respuesta.
 
+Incluye `captcha.js` y llama a `initCaptcha({ mode: 'manualHandling', ... })`.
+
 ---
 
 ## Licencia
