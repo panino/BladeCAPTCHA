@@ -33,12 +33,11 @@ BladeCAPTCHA/
 │   ├── examples/
 │   │   ├── form-integration.html
 │   │   └── manual-verification.html
-│   └── index.html             # opcional, puede redirigir a /examples
-│
-├── server/                    
-│   ├── captcha.php
-│   ├── captcha-lib.php
-│   └── procesar-formulario.php
+│   ├── php/
+│   │   ├── captcha.php
+│   │   ├── captcha-lib.php
+│   │   └── procesar-formulario.php
+│   └── index.html
 │
 ├── config/                    
 │   └── config.php
