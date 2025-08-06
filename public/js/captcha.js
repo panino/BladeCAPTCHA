@@ -180,7 +180,7 @@
 			}
 			try {
 				const { challenge, difficulty } = await fetchWithErrorHandling(
-					'../../server/captcha.php', 
+					'../php/captcha.php', 
 					{
 						method: 'POST',
 						headers: { 'Accept': 'application/json' },
@@ -200,7 +200,7 @@
 				setStatus('Enviando resultado...', 'loading');
 				const validateAction = 'VALIDATE_POW_CHALLENGE';
 				const result = await fetchWithErrorHandling(
-					'../../server/captcha.php',
+					'../php/captcha.php',
 					{
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
@@ -263,7 +263,7 @@
 		async function ejecutarBenchmarkYEnviar() {
 			const proceso = 'getPerformanceChallenge';
 			const { token, target_iterations } = await fetchWithErrorHandling(
-				'../../server/captcha.php',
+				'../php/captcha.php',
 				{
 					method: 'POST',
 					headers: { 'Accept': 'application/json' },
@@ -277,7 +277,7 @@
 			}
 			// avisamos al servidor que terminó el benchmark (no necesitamos la respuesta)
 			await fetchWithErrorHandling(
-				'../../server/captcha.php', 
+				'../php/captcha.php', 
 				{
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },

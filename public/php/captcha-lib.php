@@ -3,7 +3,7 @@
 // Librería reusable con las funciones del captcha (no imprime JSON ni responde HTTP).
 namespace Captcha;
 
-$configPath = dirname(__DIR__) . '/config/config.php';
+$configPath = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.php';
 
 if (!file_exists($configPath)) {
     header('Content-Type: application/json', true, 500);
