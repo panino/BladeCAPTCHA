@@ -11,12 +11,12 @@ Permite dos modos de uso:
 
 - **Sin dependencias externas**: no requiere librerías de terceros ni servicios externos.
 - **Privacidad**: no rastrea al usuario ni guarda información personal.
+- **No utiliza cookies**: importante para cumplir con regulaciones de privacidad.
 - **Accesible**: diseñado para ser usable con lectores de pantalla.
 - **Auto-hosteado**: control total sobre el código y la configuración.
 - **Protección adaptativa**: ajusta la dificultad de los desafíos según el comportamiento del cliente.
 
 ---
-
 ## Estructura del proyecto
 
 ```
