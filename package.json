@@ -1,0 +1,15 @@
+{
+  "name": "bladecaptcha",
+  "version": "1.0.0",
+  "description": "BladeCAPTCHA es un sistema de verificación tipo CAPTCHA accesible, auto-hosteado y respetuoso con la privacidad, desarrollado en PHP y JavaScript.   Permite dos modos de uso: 1. **Integración automática con formularios** (agrega el token oculto automáticamente). 2. **Verificación manual** (el desarrollador gestiona el flujo de validación).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "terser": "^5.43.1"
+  }
+}

@@ -108,7 +108,7 @@
 		function solvePoW(challenge, difficulty) {
 			return new Promise(
 				(resolve, reject) => {
-					const worker = new Worker('../js/workers/pow-worker.js');
+					const worker = new Worker('../js/workers/pow-worker.min.js');
 					const progressEnabled = typeof config.onProgress === 'function';
 					const loguear = !!statusElement;
 					try {
@@ -241,7 +241,7 @@
 		function benchmark(target_iterations = 1_000_000) {
 			return new Promise(
 				(resolve, reject) => {
-					const worker = new Worker('../js/workers/benchmark-worker.js');
+					const worker = new Worker('../js/workers/benchmark-worker.min.js');
 					worker.postMessage({ iterations: target_iterations });
 					worker.onmessage = (e) => {
 						if (e.data && e.data.done) {

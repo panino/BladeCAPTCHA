@@ -1,10 +1,6 @@
 # Configuración sensible
 /config/config.php
 
-# Archivos temporales y de logs
-logs/
-*.log
-
 # Archivos del sistema
 .DS_Store
 Thumbs.db
@@ -12,6 +8,7 @@ Thumbs.db
 # Archivos de caché
 *.cache
 *.tmp
+.npm
 
 # Dependencias 
 vendor/
@@ -19,3 +16,9 @@ node_modules/
 
 # Archivos de entorno
 .env
+
+# Dependencias de npm
+/node_modules
+
+# Archivos de compilación temporal
+*.log
