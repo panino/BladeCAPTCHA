@@ -18,6 +18,18 @@ Permite dos modos de uso:
 
 ---
 
+## Privacidad
+
+BladeCaptcha está diseñado para minimizar la recolección de datos y facilitar el cumplimiento de regulaciones como el RGPD (UE) y CCPA (California):
+
+- No utiliza cookies ni almacenamiento local persistente.
+- No recopila direcciones IP ni huellas del navegador.
+- Todo el procesamiento se realiza en su propio servidor (self-hosted).
+
+> Nota: la conformidad final dependerá de su implementación específica.
+
+---
+
 ## Estructura del proyecto
 
 ```
