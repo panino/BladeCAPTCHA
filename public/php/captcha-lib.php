@@ -1,6 +1,6 @@
 <?php
 // captcha-lib.php
-// Librería reusable con las funciones del captcha (no imprime JSON ni responde HTTP).
+// Librería reusable con las funciones del captcha
 namespace Captcha;
 
 $configPath = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.php';

@@ -13,7 +13,7 @@ self.addEventListener(
 			.join('');
 		};
 		const start = Date.now();
-		const maxTime = 10000 + difficulty * 3000;
+		const maxTime = 10000 + difficulty * 3600;
 		while (true) {
 			const hash = await sha256(challenge + nonce);
 			if (hash.startsWith(target)) {

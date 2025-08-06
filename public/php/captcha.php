@@ -46,7 +46,7 @@ switch ($proceso) {
             $resp = validatePerformanceChallenge($data); // puede lanzar excepciones
             echo json_encode(array_merge(['success' => true], $resp));
         } catch (\InvalidArgumentException $e) {
-            // Error del cliente (input inválido)
+            // Error del cliente (input inválido; no logueamos el error adrede)
             respondJsonError($e->getMessage(), 400, 'invalid_input');
         } catch (\RuntimeException $e) {
             // Error interno (no exponer detalles)

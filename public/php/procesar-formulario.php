@@ -35,11 +35,25 @@ if (!isset($_POST['nombre'])) {
     exit;
 }
 
-// OK: CAPTCHA válido. Procesar formulario con cuidado (escapando la salida).
+// OK: CAPTCHA válido.
+echo '
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BladeCAPTCHA - Ejemplo de verificación</title>
+</head>
+<body>
+';
 echo '<h1>CAPTCHA resuelto correctamente</h1>';
 echo '<pre>';
 foreach ($_POST as $k => $v) {
     printf("%s: %s\n", htmlspecialchars($k, ENT_QUOTES, 'UTF-8'), htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'));
 }
 echo '</pre>';
+echo '
+</body>
+</html>
+';
 exit;
