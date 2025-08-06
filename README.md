@@ -53,7 +53,7 @@ BladeCAPTCHA/
 
 1. Clonar el repositorio:
    ```bash
-   git clone https://github.com/usuario/bladecaptcha.git
+   git clone https://github.com/panino/BladeCAPTCHA.git
    ```
 2. Mover `config/config.php` fuera del directorio público de tu servidor.
 3. Configurar los parámetros de `config.php` (dificultad, tiempo de vida de tokens, etc.).
