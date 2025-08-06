@@ -95,6 +95,18 @@ function rateLimitCheck(string $ip): bool {
     return true;
 }
 
+/**
+ * Helper para responder errores JSON consistentemente.
+ */
+function respondJsonError(string $message, int $httpCode = 400, string $code = 'error') {
+    if (!headers_sent()) {
+        header('Content-Type: application/json');
+    }
+    http_response_code($httpCode);
+    echo json_encode(['success' => false, 'code' => $code, 'message' => $message]);
+    exit;
+}
+
 /* ------------------------- Performance challenge ------------------------- */
 /**
  * Devuelve un array con token y target_iterations.

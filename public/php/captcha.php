@@ -26,15 +26,6 @@ $ip = getClientIP();
 
 header('Content-Type: application/json');
 
-/**
- * Helper para responder errores JSON consistentemente.
- */
-function respondJsonError(string $message, int $httpCode = 400, string $code = 'error') {
-    http_response_code($httpCode);
-    echo json_encode(['success' => false, 'code' => $code, 'message' => $message]);
-    exit;
-}
-
 switch ($proceso) {
     case 'getPerformanceChallenge':
         try {
