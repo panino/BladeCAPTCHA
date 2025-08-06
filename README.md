@@ -1,59 +1,80 @@
 # BladeCAPTCHA
 
-BladeCAPTCHA es un sistema de CAPTCHA accesible, auto-hosteado y orientado a la privacidad.  
-Diseñado para funcionar sin depender de servicios externos y ofreciendo dos modos de integración:
-- **Modo autónomo**: El cliente maneja el flujo y recibe callbacks tras validación exitosa o fallida.
-- **Modo de integración con formularios**: El script agrega automáticamente un campo oculto con un token validado en el backend.
+BladeCAPTCHA es un sistema de verificación tipo CAPTCHA accesible, auto-hosteado y respetuoso con la privacidad, desarrollado en PHP y JavaScript.  
+Permite dos modos de uso:
+1. **Integración automática con formularios** (agrega el token oculto automáticamente).
+2. **Verificación manual** (el desarrollador gestiona el flujo de validación).
+
+---
 
 ## Características
-- 100% auto-hospedado
-- Compatible con PHP y JavaScript puros
-- Enfoque en accesibilidad y privacidad
-- Dos modos de funcionamiento
-- Desafío de prueba de trabajo (PoW) ajustable según rendimiento
-- Validación sencilla de token en backend
 
-## Requisitos
-- PHP 8.1 o superior
-- Navegador con soporte para Web Workers y SubtleCrypto
+- **Sin dependencias externas**: no requiere librerías de terceros ni servicios externos.
+- **Privacidad**: no rastrea al usuario ni guarda información personal.
+- **Accesible**: diseñado para ser usable con lectores de pantalla.
+- **Auto-hosteado**: control total sobre el código y la configuración.
+- **Protección adaptativa**: ajusta la dificultad de los desafíos según el comportamiento del cliente.
 
-## Instalación
-1. Clona este repositorio en tu servidor:
-   ```bash
-   git clone https://github.com/usuario/BladeCAPTCHA.git
-   ```
-2. Copia `config/config.sample.php` como `config/config.php` y ajusta la configuración.
-3. Coloca el contenido del directorio `public/` en el directorio público de tu servidor.
+---
 
 ## Estructura del proyecto
+
 ```
 BladeCAPTCHA/
 │
-├── config/              # Archivos de configuración (fuera del public)
-│   ├── config.sample.php
-│   └── config.php       # Configuración real (no subir a git)
-│
-├── public/              # Archivos accesibles públicamente
+├── public/                   
 │   ├── css/
+│   │   └── captcha.css
 │   ├── js/
+│   │   ├── captcha.js
 │   │   └── workers/
-│   ├── captcha.php      # Endpoint público del captcha
-│   └── index.html       # Ejemplo de integración
+│   │       ├── pow-worker.js
+│   │       └── benchmark-worker.js
+│   ├── examples/
+│   │   ├── form-integration.html
+│   │   └── manual-verification.html
+│   └── index.html             # opcional, puede redirigir a /examples
 │
-├── src/                 # Código PHP principal
+├── server/                    
+│   ├── captcha.php
 │   ├── captcha-lib.php
-│   └── otros.php
+│   └── procesar-formulario.php
 │
-└── README.md
+├── config/                    
+│   └── config.php
+│
+├── .gitignore
+├── README.md
+└── LICENSE
 ```
 
-## Uso
-### Modo integración con formularios
-Incluye el script JS y llama a `initCaptcha` con `mode: 'autoFormIntegration'`.  
-El script añadirá automáticamente un campo oculto con un token válido antes de enviar el formulario.
+---
 
-### Modo autónomo
-Llama a `initCaptcha` con `mode: 'manualHandling'` y gestiona la respuesta en tu callback.
+## Instalación
+
+1. Clonar el repositorio:
+   ```bash
+   git clone https://github.com/usuario/bladecaptcha.git
+   ```
+2. Mover `config/config.php` fuera del directorio público de tu servidor.
+3. Configurar los parámetros de `config.php` (dificultad, tiempo de vida de tokens, etc.).
+4. Asegurarse de que PHP 8.0+ y las extensiones necesarias estén instaladas.
+
+---
+
+## Uso
+
+### Modo 1: Integración automática con formularios
+Ejemplo: [`public/examples/form-integration.html`](public/examples/form-integration.html)
+
+Incluye `captcha.js` y llama a `initCaptcha({ mode: 'autoFormIntegration', ... })`.
+
+### Modo 2: Manejo manual
+Ejemplo: [`public/examples/manual-verification.html`](public/examples/manual-verification.html)
+
+Permite controlar cuándo iniciar el desafío y qué hacer con la respuesta.
+
+---
 
 ## Licencia
-Este proyecto está licenciado bajo la **MIT License**. Consulta el archivo LICENSE para más detalles.
+Este proyecto está licenciado bajo la licencia MIT. Consulta el archivo [LICENSE](LICENSE) para más información.
