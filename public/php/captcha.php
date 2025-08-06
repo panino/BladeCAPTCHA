@@ -9,8 +9,8 @@ if (rand(1, 100) === 1) {
     cleanOldRateLogs();
 }
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {   
-	header('Content-Type: application/json');
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Content-Type: application/json');
     http_response_code(405);
     echo json_encode(['success' => false, 'message' => 'Método no permitido']);
     exit;
@@ -26,51 +26,76 @@ $ip = getClientIP();
 
 header('Content-Type: application/json');
 
-try {
-    switch ($proceso) {
-        case 'getPerformanceChallenge':
-            $resp = generatePerformanceChallenge();
-            echo json_encode($resp);
-            break;
+/**
+ * Helper para responder errores JSON consistentemente.
+ */
+function respondJsonError(string $message, int $httpCode = 400, string $code = 'error') {
+    http_response_code($httpCode);
+    echo json_encode(['success' => false, 'code' => $code, 'message' => $message]);
+    exit;
+}
 
-        case 'verifyPerformanceChallenge':
+switch ($proceso) {
+    case 'getPerformanceChallenge':
+        try {
+            $resp = generatePerformanceChallenge(); // puede lanzar RuntimeException
+            echo json_encode(array_merge(['success' => true], $resp));
+        } catch (\RuntimeException $e) {
+            // Error interno: loggear y devolver mensaje genérico
+            error_log('getPerformanceChallenge error: ' . $e->getMessage());
+            respondJsonError('Error interno al generar el challenge', 500, 'server_error');
+        } catch (\Exception $e) {
+            error_log('getPerformanceChallenge unexpected: ' . $e->getMessage());
+            respondJsonError('Error inesperado', 500, 'server_error');
+        }
+        break;
+
+    case 'verifyPerformanceChallenge':
+        try {
             $resp = validatePerformanceChallenge($data); // puede lanzar excepciones
             echo json_encode(array_merge(['success' => true], $resp));
-            break;
+        } catch (\InvalidArgumentException $e) {
+            // Error del cliente (input inválido)
+            respondJsonError($e->getMessage(), 400, 'invalid_input');
+        } catch (\RuntimeException $e) {
+            // Error interno (no exponer detalles)
+            error_log('validatePerformanceChallenge runtime error: ' . $e->getMessage());
+            respondJsonError('Error interno al validar el challenge', 500, 'server_error');
+        } catch (\Exception $e) {
+            error_log('validatePerformanceChallenge unexpected: ' . $e->getMessage());
+            respondJsonError('Error inesperado', 500, 'server_error');
+        }
+        break;
 
-        case 'GET_POW_CHALLENGE':
-            $info = readRateLimitData($ip);
-            echo json_encode([
-                'challenge' => generateSignedChallenge(),
-                'difficulty' => $info['difficulty'] ?? CAPTCHA_DIFFICULTY,
-                'instructions' => 'Resuelve el desafío criptográfico para continuar'
-            ]);
-            break;
+    case 'GET_POW_CHALLENGE':
+        // Esta función no lanza excepciones en captcha-lib.php, devuelve datos directamente
+        $info = readRateLimitData($ip);
+        echo json_encode([
+            'challenge' => generateSignedChallenge(),
+            'difficulty' => $info['difficulty'] ?? CAPTCHA_DIFFICULTY,
+            'instructions' => 'Resuelve el desafío criptográfico para continuar'
+        ]);
+        break;
 
-        case 'VALIDATE_POW_CHALLENGE':
-            $signedChallenge = $data['challenge'] ?? '';
-            $nonce = (string)($data['nonce'] ?? '');
-            $resp = processValidatePoW($signedChallenge, $nonce, $ip);
-			if (isset($resp['status']) && is_int($resp['status'])) {
-				http_response_code($resp['status']);
-			}
-            echo json_encode($resp);
-            break;
+    case 'VALIDATE_POW_CHALLENGE':
+        $signedChallenge = $data['challenge'] ?? '';
+        $nonce = (string)($data['nonce'] ?? '');
+        $resp = processValidatePoW($signedChallenge, $nonce, $ip);
+        if (isset($resp['status']) && is_int($resp['status'])) {
+            http_response_code($resp['status']);
+        }
+        echo json_encode($resp);
+        break;
 
-        case 'VALIDATE_POW_TOKEN':
-            $token = (string)($data['token'] ?? '');
-            $isValid = validateToken($token);
-            echo json_encode(['success' => $isValid, 'message' => $isValid ? 'El token es válido' : 'El token no es válido o ha caducado']);
-            break;
+    case 'VALIDATE_POW_TOKEN':
+        $token = (string)($data['token'] ?? '');
+        $isValid = validateToken($token);
+        echo json_encode(['success' => $isValid, 'message' => $isValid ? 'El token es válido' : 'El token no es válido o ha caducado']);
+        break;
 
-        default:
-            http_response_code(400);
-           
-            echo json_encode(['success' => false, 'message' => 'Acción desconocida']);
-            break;
-    }
-} catch (\Exception $e) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    default:
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Acción desconocida']);
+        break;
 }
 ?>
