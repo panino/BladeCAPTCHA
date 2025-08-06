@@ -17,6 +17,7 @@ Permite dos modos de uso:
 - **Protección adaptativa**: ajusta la dificultad de los desafíos según el comportamiento del cliente.
 
 ---
+
 ## Estructura del proyecto
 
 ```
