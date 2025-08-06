@@ -55,9 +55,12 @@ BladeCAPTCHA/
    ```bash
    git clone https://github.com/panino/BladeCAPTCHA.git
    ```
-2. Mover `config/config.php` fuera del directorio público de tu servidor.
-3. Configurar los parámetros de `config.php` (dificultad, tiempo de vida de tokens, etc.).
-4. Asegurarse de que PHP 8.0+ y las extensiones necesarias estén instaladas.
+2. Copiar `config/config.sample.php` a `config/config.php` y editar los valores:
+   ```bash
+   cp config/config.sample.php config/config.php
+   nano config/config.php
+   ```
+3. Asegurarse de que PHP 8.0+ y las siguientes extensiones estén instaladas: `openssl`, `mbstring` y `json`.
 
 ---
 
