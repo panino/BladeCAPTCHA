@@ -1,0 +1,21 @@
+# Configuración sensible
+/config/config.php
+
+# Archivos temporales y de logs
+logs/
+*.log
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de caché
+*.cache
+*.tmp
+
+# Dependencias 
+vendor/
+node_modules/
+
+# Archivos de entorno
+.env

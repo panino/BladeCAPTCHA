@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Verificación CAPTCHA manual</title>
+    <link rel="stylesheet" href="../css/captcha.css">
+    <script src="../js/captcha.js"></script>
+</head>
+<body>
+    <h1>Verificación CAPTCHA</h1>
+    <p id="captchaInstructions">Presiona el botón para resolver un desafío y verificar que no eres un robot.</p>
+
+    <button id="verifyButton" aria-describedby="captchaInstructions">Verificar</button>
+    <progress id="progreso" value="0" max="100" aria-label="Progreso de resolución del CAPTCHA">0%</progress>
+    <div id="status" role="status" aria-live="polite"></div>
+
+    <script>
+    initCaptcha({
+        mode : 'manualHandling',
+        verifyButtonSelector : '#verifyButton',
+        statusSelector : '#status',
+        onSuccess : (token) => alert("✅ Verificación exitosa, token: " + token),
+        onError : (err) => alert("❌ Error: " + err.message),
+        onLoading : () => console.log("Procesando..."),
+        cancelLoading : () => console.log("Proceso terminado"),
+        onProgress : (p) => {
+            let prog = document.querySelector('#progreso');
+            prog.style.visibility = p ? 'visible' : 'hidden';
+            prog.value = p;
+            if (p === 100) setTimeout(() => prog.style.visibility = 'hidden', 100);
+        }
+    });
+    </script>
+</body>
+</html>

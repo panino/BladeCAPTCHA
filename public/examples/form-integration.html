@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulario protegido con CAPTCHA</title>
+    <link rel="stylesheet" href="../css/captcha.css">
+    <script src="../js/captcha.js"></script>
+</head>
+<body>
+    <h1>Formulario protegido con CAPTCHA</h1>
+    <p id="captchaInstructions">Completa el formulario y presiona el botón 'Enviar'</p>
+
+    <form id="formulario" method="post" action="../../server/procesar-formulario.php">
+        <label>
+            <input type="text" name="nombre" placeholder="Escribe tu nombre">
+        </label>
+        <button id="submitBtn" type="submit">Enviar</button>
+        <progress id="progreso" value="0" max="100" aria-label="Progreso de resolución del CAPTCHA">0%</progress>
+        <div id="status" role="status" aria-live="polite"></div>
+    </form>
+
+    <script>
+    initCaptcha({
+        mode : 'autoFormIntegration',
+        formSelector : '#formulario',
+        inputName : 'captcha_token',
+        statusSelector : '#status',
+        submitButtonSelector : '#submitBtn',
+        onLoading : () => {
+            let submitButton = document.querySelector('#submitBtn');
+            memo = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.style.cursor = 'wait';
+            submitButton.textContent = 'Por favor espere...';
+        },
+        cancelLoading : () => {
+            let submitButton = document.querySelector('#submitBtn');
+            submitButton.textContent = memo;
+            submitButton.disabled = false;
+            submitButton.style.cursor = 'pointer';
+        },
+        onProgress : (p) => {
+            let prog = document.querySelector('#progreso');
+            prog.style.visibility = p ? 'visible' : 'hidden';
+            prog.value = p;
+            if (p === 100) setTimeout(() => prog.style.visibility = 'hidden', 100);
+        }
+    });
+    </script>
+</body>
+</html>
