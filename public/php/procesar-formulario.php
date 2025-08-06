@@ -1,6 +1,6 @@
 <?php
 // procesar-formulario.php
-// Valida el token usando la librería local para no hacer cURL interno.
+// Valida el token usando la librería local
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'captcha-lib.php';
 
