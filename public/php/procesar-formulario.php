@@ -14,30 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $token = trim($_POST['captcha_token'] ?? '');
 
-if (empty($token)) {
-    echo 'No se recibió token CAPTCHA';
-    exit;
-}
-
-if (!preg_match('/^[a-f0-9]{32}$/i', $token)) {
-    echo 'El CAPTCHA no ha sido resuelto correctamente (formato inválido).';
-    exit;
-}
-
-$isValid = validateToken($token);
-if (!$isValid) {
-    echo 'El CAPTCHA no ha sido resuelto correctamente. Por favor inténtelo nuevamente.';
-    exit;
-}
-
-if (!isset($_POST['nombre'])) {
-    echo 'Falta el campo "nombre"';
-    exit;
-}
-
-// OK: CAPTCHA válido.
-echo '
-<!DOCTYPE html>
+$html_template = '<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
@@ -45,15 +22,38 @@ echo '
     <title>BladeCAPTCHA - Ejemplo de verificación</title>
 </head>
 <body>
-';
-echo '<h1>CAPTCHA resuelto correctamente</h1>';
-echo '<pre>';
-foreach ($_POST as $k => $v) {
-    printf("%s: %s\n", htmlspecialchars($k, ENT_QUOTES, 'UTF-8'), htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'));
-}
-echo '</pre>';
-echo '
+{{RESULT}}
 </body>
 </html>
 ';
+
+if (empty($token)) {
+	echo str_replace('{{RESULT}}', 'No se recibió token CAPTCHA', $html_template);
+    exit;
+}
+
+if (!preg_match('/^[a-f0-9]{32}$/i', $token)) {
+	echo str_replace('{{RESULT}}', 'El CAPTCHA no ha sido resuelto correctamente (formato inválido).', $html_template);
+    exit;
+}
+
+$isValid = validateToken($token);
+if (!$isValid) {
+	echo str_replace('{{RESULT}}', 'El CAPTCHA no ha sido resuelto correctamente. Por favor inténtelo nuevamente.', $html_template);
+    exit;
+}
+
+if (!isset($_POST['nombre'])) {
+	echo str_replace('{{RESULT}}', 'Falta el campo "nombre".', $html_template);
+    exit;
+}
+
+// OK: CAPTCHA válido.
+$result = '<h1>CAPTCHA resuelto correctamente</h1>';
+$result .= '<pre>';
+foreach ($_POST as $k => $v) {
+    $result .= sprintf("<strong>%s:</strong> %s\n", htmlspecialchars($k, ENT_QUOTES, 'UTF-8'), htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'));
+}
+$result .= '</pre>';
+echo str_replace('{{RESULT}}', $result, $html_template);
 exit;
