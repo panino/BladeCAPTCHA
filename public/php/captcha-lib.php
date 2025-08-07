@@ -206,7 +206,7 @@ function validatePoW(string $challenge, string $nonce, int $difficulty): bool {
 
 /* ------------------------- Token handling (one-time with expiry) ------------------------- */
 
-function validateToken(string $token, int $maxAge = 300): bool {
+function validateToken(string $token, int $maxAge = 60): bool {
     if (!$token || !preg_match('/^[a-f0-9]{32}$/i', $token)) return false;
     $token_file = sys_get_temp_dir() . "/captcha_token_$token.log";
     if (!file_exists($token_file)) return false;
