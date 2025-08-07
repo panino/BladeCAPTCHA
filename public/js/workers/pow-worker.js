@@ -11,7 +11,7 @@ self.addEventListener('message', async (event) => {
 	};
 	let nonce = 0;
 	const startTime = Date.now();
-	const baseTimeLimit = 12000 + difficulty * 3800;
+	const baseTimeLimit = 10000 + difficulty * 3000;
 	const estimatedMaxIterations = 120000;
 	let estimatedTimeToComplete = baseTimeLimit;
 	let currentTimeLimit = baseTimeLimit;
