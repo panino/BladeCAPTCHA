@@ -14,7 +14,8 @@ Permite dos modos de uso:
 - **No utiliza cookies**: importante para cumplir con regulaciones de privacidad.
 - **Accesible**: diseñado para ser usable con lectores de pantalla.
 - **Auto-hosteado**: control total sobre el código y la configuración.
-- **Protección adaptativa**: ajusta la dificultad de los desafíos según el comportamiento del cliente.
+- **Protección adaptativa**: ajusta la dificultad de los desafíos según el comportamiento y rendimiento del cliente.
+- **Optimizado para móviles**: detecta la velocidad de resolución de un desafío de prueba y adapta la dificultad para no sobrecargar dispositivos más lentos.
 
 ---
 
@@ -90,6 +91,14 @@ Ejemplo: [`public/examples/manual-verification.html`](public/examples/manual-ver
 Permite controlar cuándo iniciar el desafío y qué hacer con la respuesta.
 
 Incluye `captcha.js` y llama a `initCaptcha({ mode: 'manualHandling', ... })`.
+
+---
+
+## Detección de rendimiento y ajuste dinámico
+
+BladeCAPTCHA incluye un sistema de autoevaluación que mide el tiempo que tarda el dispositivo en resolver un desafío de prueba.  
+Con esta información, ajusta la dificultad de los desafíos posteriores para equilibrar la seguridad con la experiencia de usuario, especialmente en dispositivos móviles o de bajo rendimiento.  
+Esto garantiza que la verificación siga siendo segura sin causar demoras excesivas.
 
 ---
 
