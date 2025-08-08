@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dos formularios protegidos con BladeCAPTCHA</title>
+  <link rel="stylesheet" href="../css/captcha.css" />
+  <script src="../js/captcha.min.js"></script>
+  <style>
+    form {
+      margin-bottom: 2em;
+      border: 1px solid #ccc;
+      padding: 1em;
+      border-radius: 6px;
+    }
+    progress {
+      width: 100%;
+      visibility: hidden;
+    }
+    #status1, #status2 {
+      margin-top: 0.5em;
+      min-height: 1.4em;
+      color: #000;
+	  line-height:2.5rem;
+	  padding:0 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Dos formularios protegidos con BladeCAPTCHA</h1>
+
+  <form id="form1" method="post" action="../php/procesar-formulario.php">
+    <label>Nombre Form 1:
+      <input type="text" name="nombre" placeholder="Escribe tu nombre" />
+    </label>
+    <button id="submitBtn1" type="submit">Enviar Form 1</button>
+    <progress id="progreso1" max="100" value="0" aria-label="Progreso CAPTCHA Form 1">0%</progress>
+    <div id="status1" role="status" aria-live="polite"></div>
+  </form>
+
+  <form id="form2" method="post" action="../php/procesar-formulario.php">
+    <label>Nombre Form 2:
+      <input type="text" name="nombre" placeholder="Escribe tu nombre" />
+    </label>
+    <button id="submitBtn2" type="submit">Enviar Form 2</button>
+    <progress id="progreso2" max="100" value="0" aria-label="Progreso CAPTCHA Form 2">0%</progress>
+    <div id="status2" role="status" aria-live="polite"></div>
+  </form>
+
+  <script>
+    const formsConfig = [
+		{
+			formSelector: '#form1',
+			inputName: 'captcha_token',
+			statusSelector: '#status1',
+			submitButtonSelector: '#submitBtn1',
+			onLoading: () => {
+				const btn = document.querySelector('#submitBtn1');
+				btn.dataset.originalText = btn.textContent;
+				btn.textContent = 'Verificando...';
+				btn.disabled = true;
+				btn.style.cursor = 'wait';
+			},
+			cancelLoading: () => {
+				const btn = document.querySelector('#submitBtn1');
+				btn.textContent = btn.dataset.originalText;
+				btn.disabled = false;
+				btn.style.cursor = 'pointer';
+			},
+			onProgress: (p) => {
+				const prog = document.querySelector('#progreso1');
+				prog.style.visibility = p ? 'visible' : 'hidden';
+				prog.value = p;
+				if (p === 100) setTimeout(() => (prog.style.visibility = 'hidden'), 100);
+			}
+		},
+		{
+			formSelector: '#form2',
+			inputName: 'captcha_token',
+			statusSelector: '#status2',
+			submitButtonSelector: '#submitBtn2',
+			onLoading: () => {
+				const btn = document.querySelector('#submitBtn2');
+				btn.dataset.originalText = btn.textContent;
+				btn.textContent = 'Verificando...';
+				btn.disabled = true;
+				btn.style.cursor = 'wait';
+			},
+			cancelLoading: () => {
+				const btn = document.querySelector('#submitBtn2');
+				btn.textContent = btn.dataset.originalText;
+				btn.disabled = false;
+				btn.style.cursor = 'pointer';
+			},
+			onProgress: (p) => {
+				const prog = document.querySelector('#progreso2');
+				prog.style.visibility = p ? 'visible' : 'hidden';
+				prog.value = p;
+				if (p === 100) setTimeout(() => (prog.style.visibility = 'hidden'), 100);
+			}
+		}
+    ];
+
+    async function initAllCaptchas() {
+		for (const config of formsConfig) {
+			try {
+				await initCaptcha({ mode: 'autoFormIntegration', ...config });
+			} catch (err) {
+				console.error(err || err.message);
+			}
+		}
+	}
+	initAllCaptchas();
+  </script>
+</body>
+</html>

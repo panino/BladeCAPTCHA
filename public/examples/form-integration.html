@@ -21,32 +21,40 @@
     </form>
 
     <script>
-    initCaptcha({
-        mode : 'autoFormIntegration',
-        formSelector : '#formulario',
-        inputName : 'captcha_token',
-        statusSelector : '#status',
-        submitButtonSelector : '#submitBtn',
-        onLoading : () => {
-            let submitButton = document.querySelector('#submitBtn');
-            memo = submitButton.textContent;
-            submitButton.disabled = true;
-            submitButton.style.cursor = 'wait';
-            submitButton.textContent = 'Por favor espere...';
-        },
-        cancelLoading : () => {
-            let submitButton = document.querySelector('#submitBtn');
-            submitButton.textContent = memo;
-            submitButton.disabled = false;
-            submitButton.style.cursor = 'pointer';
-        },
-        onProgress : (p) => {
-            let prog = document.querySelector('#progreso');
-            prog.style.visibility = p ? 'visible' : 'hidden';
-            prog.value = p;
-            if (p === 100) setTimeout(() => prog.style.visibility = 'hidden', 100);
-        }
-    });
+    (async () => {
+		try {
+			await initCaptcha(
+				{
+					mode : 'autoFormIntegration',
+					formSelector : '#formulario',
+					inputName : 'captcha_token',
+					statusSelector : '#status',
+					submitButtonSelector : '#submitBtn',
+					onLoading : () => {
+						let submitButton = document.querySelector('#submitBtn');
+						memo = submitButton.textContent;
+						submitButton.disabled = true;
+						submitButton.style.cursor = 'wait';
+						submitButton.textContent = 'Por favor espere...';
+					},
+					cancelLoading : () => {
+						let submitButton = document.querySelector('#submitBtn');
+						submitButton.textContent = memo;
+						submitButton.disabled = false;
+						submitButton.style.cursor = 'pointer';
+					},
+					onProgress : (p) => {
+						let prog = document.querySelector('#progreso');
+						prog.style.visibility = p ? 'visible' : 'hidden';
+						prog.value = p;
+						if (p === 100) setTimeout(() => prog.style.visibility = 'hidden', 100);
+					}
+				}
+			);
+		} catch (err) {
+			console.error(err || err.message);
+		}
+	})();
     </script>
 </body>
 </html>

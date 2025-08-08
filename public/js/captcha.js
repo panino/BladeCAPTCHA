@@ -5,7 +5,7 @@
 			onSuccess: null,
 			onError: null,
 			formSelector: '',
-			inputName: 'captcha_token',
+			inputName: null,
 			statusSelector: '',
 			verifyButtonSelector: '',
 			submitButtonSelector: '',
@@ -16,12 +16,54 @@
 			...config
 		};
 		
-		// Selectores seguros (no llamar document.querySelector(null))
-		const verifyButton = config.verifyButtonSelector ? document.querySelector(config.verifyButtonSelector) : null;
-		const statusElement = config.statusSelector ? document.querySelector(config.statusSelector) : null;
-		let inputToken = config.inputName ? document.querySelector(`[name="${config.inputName}"]`) : null;
-		const form = config.formSelector ? document.querySelector(config.formSelector) : null;
-		const submitButton = config.submitButtonSelector ? document.querySelector(config.submitButtonSelector) : null;
+		// Validaciones estrictas para modo manualHandling
+		if (config.mode === 'manualHandling') {
+			if (config.formSelector || config.submitButtonSelector) {
+				return Promise.reject(
+					new Error(
+						'Modo manual no debe usar formSelector ni submitButtonSelector.'
+					)
+				);
+			}
+			if (config.inputName) {
+				console.warn(
+					'Modo manual no usa inputName para token oculto. Este valor será ignorado.'
+				);
+			}
+		 }
+		
+		// Obtener form si existe selector y modo es autoFormIntegration
+		const form =
+			config.mode === 'autoFormIntegration' && config.formSelector
+			? document.querySelector(config.formSelector)
+			: null;
+
+		// Función auxiliar para seleccionar elemento con lógica robusta
+		function selectElement(selector, form) {
+			if (!selector) return null;
+			if (form) {
+				// Intentar selector global primero
+				let elGlobal = document.querySelector(selector);
+				if (elGlobal && elGlobal.closest && elGlobal.closest('form') === form) {
+					return elGlobal;
+				}
+				// Sino buscar dentro del form
+				return form.querySelector(selector);
+			} else {
+				// Sin form definido, buscar global
+				return document.querySelector(selector);
+			}
+		}
+
+		// Selección de elementos UI
+		let inputToken = null;
+		if (config.mode === 'autoFormIntegration' && config.inputName && form) {
+			inputToken = form.querySelector(`[name="${config.inputName}"]`) || null;
+		}
+		const statusElement = selectElement(config.statusSelector, form);
+		const verifyButton = selectElement(config.verifyButtonSelector, form);
+		const submitButton = selectElement(config.submitButtonSelector, form);
+		
 		// Estado
 		let enProceso = false;
 		let memo = null;
@@ -286,7 +328,8 @@
 			);
 		}
 		
-		async function runVerificationSequence() {
+		async function runVerificationSequence(e) {
+			e.preventDefault();
 			// protege doble click a nivel botón
 			if (enProceso) {
 				return;
