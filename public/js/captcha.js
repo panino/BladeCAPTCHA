@@ -13,6 +13,7 @@
 			onEnd: null,
 			onProgress: null,
 			manualHandlingAutoStartOnLoad: false,
+			apiBaseUrl: '../php',
 			...config
 		};
 		
@@ -85,6 +86,7 @@
 		
 		// rutas
 		const basePath = new URL('.', import.meta.url).href.replace(/\/$/, '');
+		const apiUrl = (path) => `${config.apiBaseUrl.replace(/\/$/, '')}/${path}`;
 		
 		// Helpers
 		function setStatus(msg, className = '') {
@@ -94,17 +96,19 @@
 			}
 		}
 		function getErrorMessage(err) {
+			let msg;
 			if (err instanceof Error && err.message) {
-				return err.message;
+				msg = err.message;
+			} else if (typeof err === 'string') {
+				msg = err;
+			} else {
+				try { 
+					msg = JSON.stringify(err); 
+				} catch { 
+					msg = String(err); 
+				}
 			}
-			if (typeof err === 'string') {
-				return err;
-			}
-			try { 
-				return JSON.stringify(err); 
-			} catch { 
-				return String(err); 
-			}
+			return msg.replace(/^\s*Error\s*:\s*/i, '');
 		}
 
 		// callOnce: garantiza single-shot 
@@ -260,7 +264,7 @@
 			}
 			try {
 				const { challenge, difficulty } = await fetchWithErrorHandling(
-					'../php/captcha.php', 
+					apiUrl('captcha.php'), 
 					{
 						method: 'POST',
 						headers: { 'Accept': 'application/json' },
@@ -280,7 +284,7 @@
 				setStatus('Enviando resultado...', 'loading');
 				const validateAction = 'VALIDATE_POW_CHALLENGE';
 				const result = await fetchWithErrorHandling(
-					'../php/captcha.php',
+					apiUrl('captcha.php'), 
 					{
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
@@ -343,7 +347,7 @@
 		async function ejecutarBenchmarkYEnviar() {
 			const proceso = 'getPerformanceChallenge';
 			const { token, target_iterations } = await fetchWithErrorHandling(
-				'../php/captcha.php',
+				apiUrl('captcha.php'), 
 				{
 					method: 'POST',
 					headers: { 'Accept': 'application/json' },
@@ -357,7 +361,7 @@
 			}
 			// avisamos al servidor que terminó el benchmark (no necesitamos la respuesta)
 			await fetchWithErrorHandling(
-				'../php/captcha.php', 
+				apiUrl('captcha.php'), 
 				{
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },

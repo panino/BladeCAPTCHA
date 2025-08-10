@@ -108,6 +108,7 @@
 			await initCaptcha(
 				{
 					mode : 'manualHandling',
+					apiBaseUrl : '../php',
 					verifyButtonSelector : '#verifyButton',
 					statusSelector : '#status',
 					onSuccess : (token) => alert("✅ Verificación exitosa, token: " + token),

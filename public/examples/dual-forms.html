@@ -190,7 +190,7 @@
     async function initAllCaptchas() {
 		for (const config of formsConfig) {
 			try {
-				await initCaptcha({ mode: 'autoFormIntegration', ...config });
+				await initCaptcha({ mode: 'autoFormIntegration', apiBaseUrl : '../php', ...config });
 			} catch (err) {
 				console.error(err || err.message);
 			}
