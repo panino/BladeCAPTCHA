@@ -112,8 +112,8 @@
 					statusSelector : '#status',
 					onSuccess : (token) => alert("✅ Verificación exitosa, token: " + token),
 					onError : (err) => alert("❌ Error: " + err.message),
-					onLoading : () => console.log("Procesando..."),
-					cancelLoading : () => console.log("Proceso terminado"),
+					onStart : () => console.log("Procesando..."),
+					onEnd : () => console.log("Proceso terminado"),
 					onProgress : (p) => {
 						let prog = document.querySelector('#progreso');
 						prog.style.visibility = p ? 'visible' : 'hidden';

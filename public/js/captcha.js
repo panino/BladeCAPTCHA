@@ -9,8 +9,8 @@
 			statusSelector: '',
 			verifyButtonSelector: '',
 			submitButtonSelector: '',
-			onLoading: null,
-			cancelLoading: null,
+			onStart: null,
+			onEnd: null,
 			onProgress: null,
 			manualHandlingAutoStartOnLoad: false,
 			...config
@@ -78,7 +78,9 @@
 		let enProceso = false;
 		let callbacksFired = {
 			success: false,
-			error: false
+			error: false,
+			cancel: false,
+			load: false
 		};
 		
 		// rutas
@@ -105,7 +107,7 @@
 			}
 		}
 
-		// callOnce: garantiza single-shot para success/error
+		// callOnce: garantiza single-shot 
 		function callOnce(kind, ...args) {
 			if (kind === 'onSuccess') {
 				if (callbacksFired.success) {
@@ -129,6 +131,30 @@
 						config.onError(...args); 
 					} catch (e) { 
 						console.error('onError error', e); 
+					}
+				}
+			} else if (kind === 'onEnd') { 
+				if (callbacksFired.cancel) {
+					return;
+				}
+				callbacksFired.cancel = true;
+				if (typeof config.onEnd === 'function') {
+					try { 
+						config.onEnd(...args);
+					} catch (e) { 
+						console.error('onEnd error', e);						
+					}
+				}
+			} else if (kind === 'onStart') { 
+				if (callbacksFired.load) {
+					return;
+				}
+				callbacksFired.load = true;
+				if (typeof config.onStart === 'function') {
+					try { 
+						config.onStart(...args); 
+					} catch (e) { 
+						console.error('onStart error', e); 
 					}
 				}
 			}
@@ -228,7 +254,7 @@
 				return { success: false, message: 'Otro proceso en curso' };
 			}
 			enProceso = true;
-			callbacksFired = { success: false, error: false }; // reset por intento
+			callbacksFired = { success: false, error: false, cancel: false, load: false  }; // reset por intento
 			if (verifyButton) {
 				verifyButton.disabled = true;
 			}
@@ -342,14 +368,13 @@
 		
 		async function runVerificationSequence(e) {
 			e.preventDefault();
-			// protege doble click a nivel botón
 			if (enProceso) {
 				return;
 			}
-			// onLoading
-			if (typeof config.onLoading === 'function') {
+			// onStart
+			if (typeof config.onStart === 'function') {
 				try { 
-					config.onLoading(); 
+					callOnce('onStart'); 
 				} catch(e){
 					console.error(e);
 				}
@@ -364,9 +389,9 @@
 			}
 			await ejecutarBenchmarkYEnviar();
 			await handleVerification();
-			if (typeof config.cancelLoading === 'function') {
+			if (typeof config.onEnd === 'function') {
 				try { 
-					config.cancelLoading(); 
+					callOnce('onEnd'); 
 				} catch(e){
 					console.error(e);
 				}
@@ -429,9 +454,9 @@
 							if (submitButton.disabled || enProceso) return;
 							// Bloquear ya mismo para prevenir doble click simultáneo
 							submitButton.disabled = true;
-							if (typeof config.onLoading === 'function') {
+							if (typeof config.onStart === 'function') {
 								try { 
-									config.onLoading();
+									callOnce('onStart');
 								} catch(e){ 
 									console.error(e); 
 								}
@@ -458,9 +483,9 @@
 							} finally {
 								enProceso = false;
 								submitButton.disabled = false;
-								if (typeof config.cancelLoading === 'function') {
+								if (typeof config.onEnd === 'function') {
 									try { 
-										config.cancelLoading(); 
+										callOnce('onEnd');
 									} catch(e){ 
 										console.error(e); 
 									}

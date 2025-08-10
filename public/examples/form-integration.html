@@ -106,7 +106,7 @@
 	<script type="module">
 	import { initCaptcha } from '../js/captcha.min.js';
     (async () => {
-		let memo = null;  // Variable compartida para onLoading y cancelLoading
+		let memo = null;  // Variable compartida para onStart y onEnd
 		try {
 			await initCaptcha(
 				{
@@ -115,14 +115,14 @@
 					inputName : 'captcha_token',
 					statusSelector : '#status',
 					submitButtonSelector : '#submitBtn',
-					onLoading : () => {
+					onStart : () => {
 						let submitButton = document.querySelector('#submitBtn');
 						memo = submitButton.textContent;
 						submitButton.disabled = true;
 						submitButton.style.cursor = 'wait';
 						submitButton.textContent = 'Por favor espere...';
 					},
-					cancelLoading : () => {
+					onEnd : () => {
 						let submitButton = document.querySelector('#submitBtn');
 						submitButton.textContent = memo;
 						submitButton.disabled = false;
