@@ -1,3 +1,4 @@
+
 # BladeCAPTCHA
 
 BladeCAPTCHA es un sistema de verificación tipo CAPTCHA accesible, auto-hosteado y respetuoso con la privacidad, desarrollado en PHP y JavaScript.  
@@ -81,16 +82,48 @@ BladeCAPTCHA/
 ## Uso
 
 ### Modo 1: Integración automática con formularios
+
 Ejemplo: [`public/examples/form-integration.html`](public/examples/form-integration.html)
 
-Incluye `captcha.js` y llama a `initCaptcha({ mode: 'autoFormIntegration', ... })`.
+Importa el módulo `captcha.js` y llama a `initCaptcha` con la configuración deseada, por ejemplo:
+
+```js
+import { initCaptcha } from './js/captcha.js';
+
+(async () => {
+  try {
+    await initCaptcha({
+      mode: 'autoFormIntegration',
+      // otros parámetros...
+    });
+  } catch (err) {
+    console.error(err || err.message);
+  }
+})();
+```
 
 ### Modo 2: Manejo manual
+
 Ejemplo: [`public/examples/manual-verification.html`](public/examples/manual-verification.html)
 
 Permite controlar cuándo iniciar el desafío y qué hacer con la respuesta.
 
-Incluye `captcha.js` y llama a `initCaptcha({ mode: 'manualHandling', ... })`.
+Importa el módulo `captcha.js` y llama a `initCaptcha` así:
+
+```js
+import { initCaptcha } from './js/captcha.js';
+
+(async () => {
+  try {
+    await initCaptcha({
+      mode: 'manualHandling',
+      // otros parámetros...
+    });
+  } catch (err) {
+    console.error(err || err.message);
+  }
+})();
+```
 
 ---
 
@@ -102,5 +135,13 @@ Esto garantiza que la verificación siga siendo segura sin causar demoras excesi
 
 ---
 
+## Requisitos
+
+- Navegador con soporte para <code>Web Workers</code> y <code>JavaScript ES6+</code>.
+- Servidor capaz de servir archivos estáticos y ejecutar código PHP 8.0+, con las siguientes extensiones instaladas: `openssl`, `mbstring` y `json`.
+
+---
+
 ## Licencia
+
 Este proyecto está licenciado bajo la licencia MIT. Consulta el archivo [LICENSE](LICENSE) para más información.

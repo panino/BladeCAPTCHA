@@ -34,7 +34,7 @@ function cleanOldRateLogs($maxAge = 3600) {
     }
 }
 
-function getClientIP(): string {
+function getClientIPKey(string $clave_extra = ''): string {
     if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
         $ip = $_SERVER['HTTP_CLIENT_IP'];
     } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
@@ -45,7 +45,7 @@ function getClientIP(): string {
     if (strpos($ip, ',') !== false) {
         $ip = explode(',', $ip)[0];
     }
-    return trim($ip);
+    return trim($ip.$clave_extra);
 }
 
 function getRateLimitFile(string $ip): string {
@@ -161,7 +161,7 @@ function validatePerformanceChallenge(array $data): array {
         $dificultad = CAPTCHA_DIFFICULTY;
     }
 
-    $ip = getClientIP();
+    $ip = getClientIPKey($data['claveCaptcha']);
     $info = readRateLimitData($ip);
     $info['difficulty'] = $dificultad;
     writeRateLimitData($ip, $info);

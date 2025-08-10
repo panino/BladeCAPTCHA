@@ -54,7 +54,16 @@
 				return document.querySelector(selector);
 			}
 		}
-
+		
+		// Función auxiliar para generar una clave extra
+		function generarClave() {
+			// Crea un arreglo de 16 bytes aleatorios
+			const array = new Uint8Array(16);
+			crypto.getRandomValues(array);
+			// Convierte a hex string
+			return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
+		}
+		
 		// Selección de elementos UI
 		let inputToken = null;
 		if (config.mode === 'autoFormIntegration' && config.inputName && form) {
@@ -63,15 +72,18 @@
 		const statusElement = selectElement(config.statusSelector, form);
 		const verifyButton = selectElement(config.verifyButtonSelector, form);
 		const submitButton = selectElement(config.submitButtonSelector, form);
+		const claveCaptcha = generarClave();
 		
 		// Estado
 		let enProceso = false;
-		let memo = null;
 		let callbacksFired = {
 			success: false,
 			error: false
 		};
-
+		
+		// rutas
+		const basePath = new URL('.', import.meta.url).href.replace(/\/$/, '');
+		
 		// Helpers
 		function setStatus(msg, className = '') {
 			if (statusElement) {
@@ -150,7 +162,7 @@
 		function solvePoW(challenge, difficulty) {
 			return new Promise(
 				(resolve, reject) => {
-					const worker = new Worker('../js/workers/pow-worker.min.js');
+					const worker = new Worker(`${basePath}/workers/pow-worker.min.js`);
 					const progressEnabled = typeof config.onProgress === 'function';
 					const loguear = !!statusElement;
 					try {
@@ -174,7 +186,7 @@
 							return;
 						}
 						if (data.log) {
-							setStatus(data.log);
+							setStatus(data.log, 'info');
 							return;
 						}
 						if (data.perc !== undefined) {
@@ -226,7 +238,7 @@
 					{
 						method: 'POST',
 						headers: { 'Accept': 'application/json' },
-						body: JSON.stringify({ proceso: actionGet })
+						body: JSON.stringify({ proceso: actionGet, claveCaptcha })
 					}
 				);
 				setStatus('Resolviendo desafío...', 'loading');
@@ -246,7 +258,7 @@
 					{
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ challenge, nonce, proceso: validateAction })
+						body: JSON.stringify({ challenge, nonce, proceso: validateAction, claveCaptcha })
 					}
 				);
 				// resultado del servidor esperado: { success: bool, message: '', token_validacion: '...' }
@@ -283,7 +295,7 @@
 		function benchmark(target_iterations = 1_000_000) {
 			return new Promise(
 				(resolve, reject) => {
-					const worker = new Worker('../js/workers/benchmark-worker.min.js');
+					const worker = new Worker(`${basePath}/workers/benchmark-worker.min.js`);
 					worker.postMessage({ iterations: target_iterations });
 					worker.onmessage = (e) => {
 						if (e.data && e.data.done) {
@@ -309,7 +321,7 @@
 				{
 					method: 'POST',
 					headers: { 'Accept': 'application/json' },
-					body: JSON.stringify({ proceso })
+					body: JSON.stringify({ proceso, claveCaptcha })
 				}
 			);
 			try { 
@@ -323,7 +335,7 @@
 				{
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ token, proceso: 'verifyPerformanceChallenge' })
+					body: JSON.stringify({ token, proceso: 'verifyPerformanceChallenge', claveCaptcha })
 				}
 			);
 		}
@@ -468,4 +480,5 @@
 		}
 	} // end initCaptcha
 	
+	export { initCaptcha };
 	

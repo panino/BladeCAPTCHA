@@ -21,8 +21,9 @@ $data = json_decode($rawBody, true);
 if (!is_array($data)) $data = [];
 
 $proceso = $data['proceso'] ?? '';
+$claveCaptcha = $data['claveCaptcha'] ?? '';
 
-$ip = getClientIP();
+$ip = getClientIPKey($claveCaptcha);
 
 header('Content-Type: application/json');
 
