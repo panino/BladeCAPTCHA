@@ -83,7 +83,19 @@
 			cancel: false,
 			load: false
 		};
+		let lastProgress = null;
 		
+		// Helper para llamar onProgress solo si el valor cambia
+		function safeOnProgress(value) {
+			if (typeof config.onProgress === 'function' && lastProgress !== value) {
+				try {
+					config.onProgress(value);
+					lastProgress = value;
+				} catch (e) {
+					console.error('onProgress error', e);
+				}
+			}
+		}
 		// rutas
 		const basePath = new URL('.', import.meta.url).href.replace(/\/$/, '');
 		const apiUrl = (path) => `${config.apiBaseUrl.replace(/\/$/, '')}/${path}`;
@@ -207,9 +219,7 @@
 						if (data.error) {
 							if (!settled) {
 								settled = true;
-								if (typeof config.onProgress === 'function') {
-									config.onProgress(100);
-								}
+								safeOnProgress(100);
 								reject(new Error(data.error));
 								worker.terminate();
 							}
@@ -220,17 +230,13 @@
 							return;
 						}
 						if (data.perc !== undefined) {
-							if (typeof config.onProgress === 'function') {
-								config.onProgress(Number(data.perc));
-							}
+							safeOnProgress(Number(data.perc));
 							return;
 						}
 						if (data.nonce !== undefined) {
 							if (!settled) {
 								settled = true;
-								if (typeof config.onProgress === 'function') {
-									config.onProgress(100);
-								}
+								safeOnProgress(100);
 								resolve(data.nonce);
 								worker.terminate();
 							}
@@ -239,9 +245,7 @@
 					worker.onerror = (err) => {
 						if (!settled) {
 							settled = true;
-							if (typeof config.onProgress === 'function') {
-								config.onProgress(100);
-							}
+							safeOnProgress(100);
 							reject(new Error('Error en worker: ' + (err?.message || err)));
 							worker.terminate();
 						}
@@ -384,28 +388,19 @@
 				}
 			}
 			// reset progress
-			if (typeof config.onProgress === 'function') {
-				try { 
-					config.onProgress(0);
-				} catch(e){
-					console.error(e);
+			safeOnProgress(0);
+			try {
+				await ejecutarBenchmarkYEnviar();
+				await handleVerification();
+			} finally {
+				if (typeof config.onEnd === 'function') {
+					try { 
+						callOnce('onEnd'); 
+					} catch(e){
+						console.error(e);
+					}
 				}
-			}
-			await ejecutarBenchmarkYEnviar();
-			await handleVerification();
-			if (typeof config.onEnd === 'function') {
-				try { 
-					callOnce('onEnd'); 
-				} catch(e){
-					console.error(e);
-				}
-			}
-			if (typeof config.onProgress === 'function') {
-				try { 
-					config.onProgress(0);
-				} catch(e){
-					console.error(e);
-				}
+				safeOnProgress(100);
 			}
 		}
 
@@ -465,9 +460,7 @@
 									console.error(e); 
 								}
 							}
-							if (typeof config.onProgress === 'function') {
-								config.onProgress(0);
-							}
+							safeOnProgress(0);
 							await ejecutarBenchmarkYEnviar();
 							try {
 								const res = await handleVerification();
@@ -494,13 +487,7 @@
 										console.error(e); 
 									}
 								}
-								if (typeof config.onProgress === 'function') {
-									try { 
-										config.onProgress(0);
-									} catch(e){
-										console.error(e);
-									}
-								}
+								safeOnProgress(100);
 							}
 						}
 					);
