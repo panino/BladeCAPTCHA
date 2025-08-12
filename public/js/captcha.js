@@ -415,7 +415,12 @@
 						);
 					} 
 					if (config.manualHandlingAutoStartOnLoad) {
-						await runVerificationSequence();
+						try {
+							await runVerificationSequence();
+						} catch (err) {
+							setStatus(getErrorMessage(err), 'error');
+							callOnce('onError', err);
+						}
 					}
 				}
 			);
