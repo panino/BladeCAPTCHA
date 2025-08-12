@@ -1,7 +1,6 @@
 <?php
 // procesar-formulario.php
 // Valida el token usando la librería local
-
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'captcha-lib.php';
 use function Captcha\validateToken;
 

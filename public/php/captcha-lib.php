@@ -2,9 +2,7 @@
 // captcha-lib.php
 // Librería reusable con las funciones del captcha
 namespace Captcha;
-
 $configPath = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.php';
-
 if (!file_exists($configPath)) {
     header('Content-Type: application/json', true, 500);
     echo json_encode([
@@ -13,8 +11,8 @@ if (!file_exists($configPath)) {
     ]);
     exit;
 }
-
 require_once $configPath;
+require_once 'cors.php';
 
 /* ------------------------- Key derivation ------------------------- */
 function derive_keys(string $master_key): array {

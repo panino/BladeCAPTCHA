@@ -178,26 +178,20 @@
 
 		// Fetch wrapper robusto
 		async function fetchWithErrorHandling(url, options = {}) {
-			try {
-				const response = await fetch(url, options);
-				if (!response.ok) {
-					let errorData;
-					try { 
-						errorData = await response.json(); 
-					}
-					catch (jsonErr) {
-						errorData = { message: await response.text().catch(()=>'') || `HTTP ${response.status}` };
-					}
-					throw new Error(errorData.message || `HTTP ${response.status}`);
+			const response = await fetch(url, options);
+			if (!response.ok) {
+				let errorData;
+				try {
+					errorData = await response.json();
+				} catch {
+					errorData = { message: await response.text().catch(()=>'') || `HTTP ${response.status}` };
 				}
-				const contentType = response.headers.get('content-type') || '';
-				if (contentType.includes('application/json')) {
-					return await response.json();
-				}
-				return await response.text();
-			} catch (err) { 
-				throw err; 
+				throw new Error(errorData.message || `HTTP ${response.status}`);
 			}
+			const contentType = response.headers.get('content-type') || '';
+			return contentType.includes('application/json')
+				? await response.json()
+				: await response.text();
 		}
 
 		// solvePoW (usa worker)
@@ -376,31 +370,23 @@
 		
 		async function runVerificationSequence(e) {
 			e.preventDefault();
-			if (enProceso) {
-				return;
-			}
-			// onStart
-			if (typeof config.onStart === 'function') {
-				try { 
-					callOnce('onStart'); 
-				} catch(e){
-					console.error(e);
-				}
-			}
-			// reset progress
+			if (enProceso) return;
+
+			callOnce('onStart');
+			lastProgress = null;
 			safeOnProgress(0);
+
 			try {
 				await ejecutarBenchmarkYEnviar();
 				await handleVerification();
+			} catch (err) {
+				setStatus(getErrorMessage(err), 'error');
+				callOnce('onError', err);
 			} finally {
-				if (typeof config.onEnd === 'function') {
-					try { 
-						callOnce('onEnd'); 
-					} catch(e){
-						console.error(e);
-					}
-				}
+				callOnce('onEnd');
 				safeOnProgress(100);
+				if (verifyButton) verifyButton.disabled = false;
+				enProceso = false;
 			}
 		}
 
@@ -453,16 +439,11 @@
 							if (submitButton.disabled || enProceso) return;
 							// Bloquear ya mismo para prevenir doble click simultáneo
 							submitButton.disabled = true;
-							if (typeof config.onStart === 'function') {
-								try { 
-									callOnce('onStart');
-								} catch(e){ 
-									console.error(e); 
-								}
-							}
+							callOnce('onStart');
+							lastProgress = null;
 							safeOnProgress(0);
-							await ejecutarBenchmarkYEnviar();
 							try {
+								await ejecutarBenchmarkYEnviar();
 								const res = await handleVerification();
 								const token = res.token || (inputToken ? inputToken.value : '');
 								const tokenOk = !!token && /^[a-f0-9]{32}$/i.test(token);
@@ -480,13 +461,7 @@
 							} finally {
 								enProceso = false;
 								submitButton.disabled = false;
-								if (typeof config.onEnd === 'function') {
-									try { 
-										callOnce('onEnd');
-									} catch(e){ 
-										console.error(e); 
-									}
-								}
+								callOnce('onEnd');
 								safeOnProgress(100);
 							}
 						}
