@@ -411,12 +411,27 @@
 					if (verifyButton) {
 						verifyButton.addEventListener(
 							'click', 
-							runVerificationSequence
+							async (e) => {
+								try {
+									try {
+										await runVerificationSequence(e);
+									} finally {
+										callOnce('onEnd');
+									}
+								} catch (err) {
+									setStatus(getErrorMessage(err), 'error');
+									callOnce('onError', err);
+								}
+							}
 						);
 					} 
 					if (config.manualHandlingAutoStartOnLoad) {
 						try {
-							await runVerificationSequence();
+							try {
+								await runVerificationSequence();
+							} finally {
+								callOnce('onEnd');
+							}
 						} catch (err) {
 							setStatus(getErrorMessage(err), 'error');
 							callOnce('onError', err);
@@ -448,17 +463,25 @@
 							lastProgress = null;
 							safeOnProgress(0);
 							try {
-								await ejecutarBenchmarkYEnviar();
-								const res = await handleVerification();
-								const token = res.token || (inputToken ? inputToken.value : '');
-								const tokenOk = !!token && /^[a-f0-9]{32}$/i.test(token);
-								if (res.success && tokenOk) {
-									form.submit();
-									return;
+								try {
+									callOnce('onStart');
+									lastProgress = null;
+									safeOnProgress(0);
+
+									await ejecutarBenchmarkYEnviar();
+									const res = await handleVerification();
+									const token = res.token || (inputToken ? inputToken.value : '');
+									const tokenOk = !!token && /^[a-f0-9]{32}$/i.test(token);
+									if (res.success && tokenOk) {
+										form.submit();
+										return;
+									}
+									const message = res.message || 'No se pudo completar la verificación.';
+									setStatus(message, 'error');
+									callOnce('onError', new Error(message));
+								} finally {
+									callOnce('onEnd');
 								}
-								const message = res.message || 'No se pudo completar la verificación.';
-								setStatus(message, 'error');
-								callOnce('onError', new Error(message));
 							} catch (err) {
 								const msg = `Error: ${getErrorMessage(err)}`;
 								setStatus(msg, 'error');
@@ -466,7 +489,6 @@
 							} finally {
 								enProceso = false;
 								submitButton.disabled = false;
-								callOnce('onEnd');
 								safeOnProgress(100);
 							}
 						}

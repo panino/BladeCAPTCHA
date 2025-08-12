@@ -104,7 +104,7 @@
     </form>
 
 	<script type="module">
-	import { initCaptcha } from '../js/captcha.min.js';
+	import { initCaptcha } from '../js/captcha.js';
     (async () => {
 		let memo = null;  // Variable compartida para onStart y onEnd
 		try {
@@ -122,12 +122,15 @@
 						submitButton.disabled = true;
 						submitButton.style.cursor = 'wait';
 						submitButton.textContent = 'Por favor espere...';
+						console.log("Procesando...");
+						
 					},
 					onEnd : () => {
 						let submitButton = document.querySelector('#submitBtn');
 						submitButton.textContent = memo;
 						submitButton.disabled = false;
 						submitButton.style.cursor = 'pointer';
+						console.log("Proceso terminado");
 					},
 					onProgress : (p) => {
 						let prog = document.querySelector('#progreso');

@@ -133,7 +133,7 @@
   </form>
 
   <script type="module">
-	import { initCaptcha } from '../js/captcha.min.js';
+	import { initCaptcha } from '../js/captcha.js';
     const formsConfig = [
 		{
 			formSelector: '#form1',
@@ -146,12 +146,14 @@
 				btn.textContent = 'Verificando...';
 				btn.disabled = true;
 				btn.style.cursor = 'wait';
+				console.log("Procesando...");
 			},
 			onEnd: () => {
 				const btn = document.querySelector('#submitBtn1');
 				btn.textContent = btn.dataset.originalText;
 				btn.disabled = false;
 				btn.style.cursor = 'pointer';
+				console.log("Proceso terminado");
 			},
 			onProgress: (p) => {
 				const prog = document.querySelector('#progreso1');
@@ -171,12 +173,14 @@
 				btn.textContent = 'Verificando...';
 				btn.disabled = true;
 				btn.style.cursor = 'wait';
+				console.log("Procesando...");
 			},
 			onEnd: () => {
 				const btn = document.querySelector('#submitBtn2');
 				btn.textContent = btn.dataset.originalText;
 				btn.disabled = false;
 				btn.style.cursor = 'pointer';
+				console.log("Proceso terminado");
 			},
 			onProgress: (p) => {
 				const prog = document.querySelector('#progreso2');
