@@ -1,0 +1,15 @@
+@font-face {
+  font-family: 'Twemoji';
+  src : url('../fonts/twemoji-mozilla.woff2') format('woff2'),
+        url('../fonts/twemoji-mozilla.ttf') format('truetype');
+  font-display: swap;
+}
+
+.emoji {
+  font-family: 'Twemoji', 'Segoe UI Emoji', sans-serif;
+  display: inline-block;
+  transform: scale(1.15);
+  transform-origin: center bottom;  /* Punto de anclaje para la escala */
+  margin: -0.075em 0.15em;         /* Compensa arriba/abajo e izquierda/derecha */
+  vertical-align: middle; 
+}

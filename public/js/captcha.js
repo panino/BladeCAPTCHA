@@ -22,13 +22,13 @@
 			if (config.formSelector || config.submitButtonSelector) {
 				return Promise.reject(
 					new Error(
-						'Modo manual no debe usar formSelector ni submitButtonSelector.'
+						'Manual mode must not use formSelector nor submitButtonSelector'
 					)
 				);
 			}
 			if (config.inputName) {
 				console.warn(
-					'Modo manual no usa inputName para token oculto. Este valor será ignorado.'
+					'Manual mode does not use inputName for hidden token. This value will be ignored'
 				);
 			}
 		 }
@@ -240,7 +240,7 @@
 						if (!settled) {
 							settled = true;
 							safeOnProgress(100);
-							reject(new Error('Error en worker: ' + (err?.message || err)));
+							reject(new Error('Worker error: ' + (err?.message || err)));
 							worker.terminate();
 						}
 					};
@@ -251,9 +251,9 @@
 		// handleVerification: devuelve { success, token, message }
 		async function handleVerification() {
 			const actionGet = 'GET_POW_CHALLENGE';
-			setStatus('Obteniendo desafío...', 'loading');
+			setStatus('Retrieving challenge...', 'loading');
 			if (enProceso) {
-				return { success: false, message: 'Otro proceso en curso' };
+				return { success: false, message: 'Another process in progress' };
 			}
 			enProceso = true;
 			callbacksFired = { success: false, error: false, cancel: false, load: false  }; // reset por intento
@@ -269,7 +269,7 @@
 						body: JSON.stringify({ proceso: actionGet, claveCaptcha })
 					}
 				);
-				setStatus('Resolviendo desafío...', 'loading');
+				setStatus('Solving challenge...', 'loading');
 				let nonce;
 				try {
 					nonce = await solvePoW(challenge, difficulty);
@@ -279,7 +279,7 @@
 					callOnce('onError', err);
 					return { success: false, message: msg };
 				}
-				setStatus('Enviando resultado...', 'loading');
+				setStatus('Sending result...', 'loading');
 				const validateAction = 'VALIDATE_POW_CHALLENGE';
 				const result = await fetchWithErrorHandling(
 					apiUrl('captcha.php'), 
@@ -304,9 +304,9 @@
 					callOnce('onSuccess', result.token_validacion || '');
 					return { success: true, token: result.token_validacion || '', message: result.message || '' };
 				} else {
-					const errObj = new Error(result.message || 'Validación fallida');
+					const errObj = new Error(result.message || 'Validation failed');
 					callOnce('onError', errObj);
-					return { success: false, message: result.message || 'Validación fallida' };
+					return { success: false, message: result.message || 'Validation failed' };
 				}
 			} catch (err) {
 				const msg = `Error: ${getErrorMessage(err)}`;
@@ -329,7 +329,7 @@
 						if (e.data && e.data.done) {
 							resolve();
 						} else {
-							reject(new Error('Benchmark no finalizó correctamente'));
+							reject(new Error('Benchmark did not finish correctly'));
 						}
 						worker.terminate();
 					};
@@ -355,7 +355,7 @@
 			try { 
 				await benchmark(target_iterations); 
 			} catch (err) { 
-				console.log('Benchmark falló', err); 
+				console.log('Benchmark failed', err); 
 			}
 			// avisamos al servidor que terminó el benchmark (no necesitamos la respuesta)
 			await fetchWithErrorHandling(
@@ -394,15 +394,15 @@
 		if (config.mode === 'manualHandling') {
 			if (!verifyButton && !config.manualHandlingAutoStartOnLoad) {
 				console.warn(
-					'⚠️ No se encontró "verifyButtonSelector" y "manualHandlingAutoStartOnLoad" está desactivado.\n' +
-					'   La verificación no podrá iniciarse de forma manual ni automática.'
+					'⚠️ "verifyButtonSelector" was not found and "manualHandlingAutoStartOnLoad" is disabled.\n' +  
+					'   Verification cannot be initiated manually or automatically'  
 				);
 			}
 			if (verifyButton && config.manualHandlingAutoStartOnLoad) {
 				console.info(
-					'ℹ️ "manualHandlingAutoStartOnLoad" está activado y también existe un botón de verificación.\n' +
-					'   Esto puede ser redundante: la verificación se ejecutará automáticamente al cargar la página, ' +
-					'pero el botón seguirá visible para volver a ejecutarla si se desea.'
+					'ℹ️ "manualHandlingAutoStartOnLoad" is enabled and a verify button also exists.\n' +
+					'   This might be redundant: verification will run automatically when the page loads,\n' +
+					'   but the button will remain visible to run it again if desired'
 				);
 			}
 			document.addEventListener(
@@ -441,11 +441,11 @@
 			);
 		} else if (config.mode === 'autoFormIntegration') {
 			if (!submitButton) {
-				console.warn('No se encontró submitButtonSelector');
+				console.warn('submitButtonSelector not found');
 				return;
 			}
 			if (!form) {
-				console.warn('No se encontró formSelector');
+				console.warn('formSelector not found');
 				return;
 			}
 			document.addEventListener(
@@ -476,7 +476,7 @@
 										form.submit();
 										return;
 									}
-									const message = res.message || 'No se pudo completar la verificación.';
+									const message = res.message || 'Verification could not be completed';
 									setStatus(message, 'error');
 									callOnce('onError', new Error(message));
 								} finally {

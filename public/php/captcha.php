@@ -14,7 +14,7 @@ if (rand(1, 100) === 1) {
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Content-Type: application/json');
     http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Método no permitido']);
+    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
     exit;
 }
 
@@ -37,10 +37,10 @@ switch ($proceso) {
         } catch (\RuntimeException $e) {
             // Error interno: loggear y devolver mensaje genérico
             error_log('getPerformanceChallenge error: ' . $e->getMessage());
-            respondJsonError('Error interno al generar el challenge', 500, 'server_error');
+            respondJsonError('Internal error while generating the challenge', 500, 'server_error');
         } catch (\Exception $e) {
             error_log('getPerformanceChallenge unexpected: ' . $e->getMessage());
-            respondJsonError('Error inesperado', 500, 'server_error');
+            respondJsonError('Unexpected error', 500, 'server_error');
         }
         break;
 
@@ -54,10 +54,10 @@ switch ($proceso) {
         } catch (\RuntimeException $e) {
             // Error interno (no exponer detalles)
             error_log('validatePerformanceChallenge runtime error: ' . $e->getMessage());
-            respondJsonError('Error interno al validar el challenge', 500, 'server_error');
+            respondJsonError('Internal error while validating the challenge', 500, 'server_error');
         } catch (\Exception $e) {
             error_log('validatePerformanceChallenge unexpected: ' . $e->getMessage());
-            respondJsonError('Error inesperado', 500, 'server_error');
+            respondJsonError('Unexpected error', 500, 'server_error');
         }
         break;
 
@@ -67,7 +67,7 @@ switch ($proceso) {
         echo json_encode([
             'challenge' => generateSignedChallenge(),
             'difficulty' => $info['difficulty'] ?? CAPTCHA_DIFFICULTY,
-            'instructions' => 'Resuelve el desafío criptográfico para continuar'
+            'instructions' => 'Solve the cryptographic challenge to continue'
         ]);
         break;
 
@@ -84,12 +84,12 @@ switch ($proceso) {
     case 'VALIDATE_POW_TOKEN':
         $token = (string)($data['token'] ?? '');
         $isValid = validateToken($token);
-        echo json_encode(['success' => $isValid, 'message' => $isValid ? 'El token es válido' : 'El token no es válido o ha caducado']);
+        echo json_encode(['success' => $isValid, 'message' => $isValid ? 'The token is valid' : 'The token is not valid or has expired']);
         break;
 
     default:
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Acción desconocida']);
+        echo json_encode(['success' => false, 'message' => 'Unknown action']);
         break;
 }
 ?>

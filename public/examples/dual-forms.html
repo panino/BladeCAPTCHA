@@ -5,9 +5,11 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>Dos formularios protegidos con BladeCAPTCHA</title>
 		<link rel="stylesheet" href="../css/captcha.css" />
+		<link rel="stylesheet" href="css/css.css">
 		<style>
 			:root {
 				--header-height: 60px;
+				font-size: 14px;
 			}
 
 			html {
@@ -75,6 +77,7 @@
 				margin: 0 auto;
 				padding: 0 !important;
 				width: 100%;
+				font-family: Verdana, Geneva, sans-serif;
 			}
 
 			main {
@@ -147,20 +150,20 @@
 	<body>
 		<header class="sticky-header">
 			<nav>
-				<a href="../../../landing/index.html" class="logo" aria-label="BladeCAPTCHA home">🐢 BladeCAPTCHA</a>
-				<button class="menu-toggle" aria-label="Abrir menú">☰</button>
+				<a href="https://disegnocentell.com.ar/BladeCAPTCHA/" class="logo" aria-label="BladeCAPTCHA home"><span class="emoji">🐢</span> BladeCAPTCHA</a>
+				<button class="menu-toggle" aria-label="Abrir menú"><span class="emoji">☰</span></button>
 				<ul class="nav-links">
 					<li>
-						<a href="../../../landing/index.html">Inicio</a>
+						<a href="https://disegnocentell.com.ar/BladeCAPTCHA/">Inicio</a>
 					</li>
 					<li>
-						<a href="../../../landing/documentacion.html">Documentación</a>
+						<a href="https://disegnocentell.com.ar/BladeCAPTCHA/documentacion.html">Documentación</a>
 					</li>
 					<li>
 						<a href="https://github.com/panino/BladeCAPTCHA" target="_blank" rel="noopener noreferrer">GitHub</a>
 					</li>
 					<li>
-						<a href="../../../landing/en" lang="en" hreflang="en">English</a>
+						<a href="https://disegnocentell.com.ar/BladeCAPTCHA/en/" lang="en" hreflang="en">English</a>
 					</li>
 				</ul>
 			</nav>
@@ -269,7 +272,11 @@
 			const navLinks = document.querySelector('.nav-links');
 			menuToggle.addEventListener('click', () => {
 				const isOpen = navLinks.classList.toggle('show');
-				menuToggle.textContent = isOpen ? '✖' : '☰';
+				menuToggle.innerHTML = isOpen ? `
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+				  <line x1="18" y1="6" x2="6" y2="18"/>
+				  <line x1="6" y1="6" x2="18" y2="18"/>
+				</svg>` : '<span class="emoji">☰</span>';
 				menuToggle.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
 			});
 

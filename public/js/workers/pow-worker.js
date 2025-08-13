@@ -12,7 +12,7 @@ self.addEventListener('message', async (event) => {
 	let nonce = 0;
 	const startTime = Date.now();
 	const baseTimeLimit = 10000 + difficulty * 3000;
-	const estimatedMaxIterations = 120000;
+	const estimatedMaxIterations = 150000;
 	let estimatedTimeToComplete = baseTimeLimit;
 	let currentTimeLimit = baseTimeLimit;
 	let lastPerc = 0;
@@ -28,7 +28,7 @@ self.addEventListener('message', async (event) => {
 			estimatedTimeToComplete = elapsed * estimatedMaxIterations / nonce;
 			currentTimeLimit = Math.max(baseTimeLimit, estimatedTimeToComplete);
 			self.postMessage({
-				log: `Calculando... (${nonce} intentos)`
+				log: `Calculating... (${nonce} attempts)`  
 			});
 		}
 		if (progress && nonce % 100 === 0) {
@@ -42,7 +42,7 @@ self.addEventListener('message', async (event) => {
 		}
 
 		if (Date.now() - startTime > currentTimeLimit) {
-			self.postMessage({ error: 'Tiempo de cálculo excedido' });
+			self.postMessage({ error: 'Calculation time exceeded' });
 			return;
 		}
 	}

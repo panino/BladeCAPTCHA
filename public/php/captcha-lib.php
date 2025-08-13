@@ -7,7 +7,7 @@ if (!file_exists($configPath)) {
     header('Content-Type: application/json', true, 500);
     echo json_encode([
         'success' => false,
-        'message' => 'Error de configuración: config.php no encontrado.'
+        'message' => 'Configuration error: config.php not found'
     ]);
     exit;
 }
@@ -116,7 +116,7 @@ function generatePerformanceChallenge(): array {
     $payload = json_encode(['ts' => time()]);
     $cipher = openssl_encrypt($payload, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
     if ($cipher === false) {
-        throw new \RuntimeException('Error interno de cifrado');
+        throw new \RuntimeException('Internal encryption error');
     }
     $hmac = hash_hmac('sha256', $cipher . $iv, $keys['mac'], true);
     $token = base64_encode($hmac . $iv . $cipher);
@@ -132,22 +132,22 @@ function validatePerformanceChallenge(array $data): array {
     $iv_len = openssl_cipher_iv_length('aes-256-cbc');
 
     $raw = base64_decode($data['token'] ?? '', true);
-    if ($raw === false) throw new \InvalidArgumentException('Token inválido (base64)');
+    if ($raw === false) throw new \InvalidArgumentException('Invalid token (base64)');
 
     $hmac_len = 32;
-    if (strlen($raw) < ($hmac_len + $iv_len + 1)) throw new \InvalidArgumentException('Token demasiado corto');
+    if (strlen($raw) < ($hmac_len + $iv_len + 1)) throw new \InvalidArgumentException('Token too short');
 
     $hmac = substr($raw, 0, $hmac_len);
     $iv = substr($raw, $hmac_len, $iv_len);
     $cipher = substr($raw, $hmac_len + $iv_len);
     $expected_hmac = hash_hmac('sha256', $cipher . $iv, $hmac_key, true);
-    if (!hash_equals($expected_hmac, $hmac)) throw new \RuntimeException('Token alterado o inválido');
+    if (!hash_equals($expected_hmac, $hmac)) throw new \RuntimeException('Token altered or invalid');
 
     $key = $keys['enc'];
     $decrypted = openssl_decrypt($cipher, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
-    if ($decrypted === false) throw new \RuntimeException('No se pudo descifrar token');
+    if ($decrypted === false) throw new \RuntimeException('Could not decrypt token');
     $payload = json_decode($decrypted, true);
-    if (!is_array($payload) || !isset($payload['ts'])) throw new \RuntimeException('Payload inválido');
+    if (!is_array($payload) || !isset($payload['ts'])) throw new \RuntimeException('Invalid payload');
 
     $start_time = (int)$payload['ts'];
     $delta = time() - $start_time;
@@ -246,11 +246,11 @@ function validateToken(string $token, int $maxAge = 60): bool {
 function processValidatePoW(string $signedChallenge, string $nonce, string $ip): array {
     // rate limit
     if (!rateLimitCheck($ip)) {
-        return ['success' => false, 'message' => 'Demasiadas solicitudes','status' => 429];
+        return ['success' => false, 'message' => 'Too many requests','status' => 429];
     }
 
     $challengeData = validateChallenge($signedChallenge);
-    if (!$challengeData) return ['success' => false, 'message' => 'Challenge inválido o expirado'];
+    if (!$challengeData) return ['success' => false, 'message' => 'Invalid or expired challenge'];
 
     $info = readRateLimitData($ip);
     $dificultad = (int)($info['difficulty'] ?? CAPTCHA_DIFFICULTY);
@@ -269,10 +269,10 @@ function processValidatePoW(string $signedChallenge, string $nonce, string $ip):
             }
             fclose($fp);
         } else {
-            return ['success' => false, 'message' => 'Error interno al crear token'];
+            return ['success' => false, 'message' => 'Internal error while creating token'];
         }
 
-        return ['success' => true, 'message' => 'Verificación exitosa', 'token_validacion' => $token];
+        return ['success' => true, 'message' => 'Verification successful', 'token_validacion' => $token];
     } else {
         // devuelvo un token "señuelo" con el mismo formato pero no persistido
         $fakeToken = bin2hex(random_bytes(16));
