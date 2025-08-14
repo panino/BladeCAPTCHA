@@ -193,59 +193,113 @@
 				? await response.json()
 				: await response.text();
 		}
-
-		// solvePoW (usa worker)
+		
+		// usa workers en paralelo
 		function solvePoW(challenge, difficulty) {
-			return new Promise(
-				(resolve, reject) => {
+			const isMobile = matchMedia("(pointer: coarse)").matches;
+
+			const baseSubRange = isMobile ? 5000 : 10000;
+			const minSubRange = isMobile ? 2000 : 5000;
+			const maxSubRange = isMobile ? 10000 : 20000;
+			const workersCount = isMobile ? 2 : Math.min(4, navigator.hardwareConcurrency || 4);
+			const globalMax = 500000; // límite absoluto de nonces
+			const timeFactor = isMobile ? 2 : 1;
+
+			let nextStart = 0;
+			let totalNoncesTried = 0;
+			let nonceFound = false;
+			let settled = false;
+
+			const workers = [];
+			const workerLastSize = Array(workersCount).fill(baseSubRange);
+			const workerLastTime = Array(workersCount).fill(0);
+
+			const progressEnabled = typeof config.onProgress === 'function';
+			const loguear = !!statusElement;
+
+			function assignNextRange(workerIndex) {
+				if (nonceFound || nextStart >= globalMax) return;
+
+				// Ajuste dinámico según rendimiento
+				let lastTime = workerLastTime[workerIndex] || 0;
+				let lastSize = workerLastSize[workerIndex] || baseSubRange;
+
+				let newSize = lastSize;
+				if (lastTime > 0) {
+					const targetTime = 2000; // 2 segundos por sub-rango ideal
+					newSize = Math.min(
+						maxSubRange,
+						Math.max(minSubRange, Math.floor(lastSize * (targetTime / lastTime)))
+					);
+				}
+
+				const start = nextStart;
+				const end = Math.min(nextStart + newSize, globalMax);
+				nextStart = end;
+
+				workerLastSize[workerIndex] = end - start;
+				workerLastTime[workerIndex] = Date.now();
+
+				workers[workerIndex].postMessage({
+					challenge,
+					difficulty,
+					loguear,
+					progress: progressEnabled,
+					start,
+					end,
+					timeFactor
+				});
+			}
+
+			return new Promise((resolve, reject) => {
+				for (let i = 0; i < workersCount; i++) {
 					const worker = new Worker(`${basePath}/workers/pow-worker.min.js`);
-					const progressEnabled = typeof config.onProgress === 'function';
-					const loguear = !!statusElement;
-					try {
-						worker.postMessage({ challenge, difficulty, loguear, progress: progressEnabled });
-					} catch (e) {
-						worker.terminate();
-						return reject(e);
-					}
-					let settled = false; // evita doble resolve/reject
+					workers.push(worker);
+
 					worker.onmessage = (ev) => {
 						const data = ev.data || {};
-						if (data.error) {
-							if (!settled) {
-								settled = true;
-								safeOnProgress(100);
-								reject(new Error(data.error));
-								worker.terminate();
-							}
+
+						// nonce encontrado → resolve + 100% progreso
+						if (data.nonce !== undefined && !settled) {
+							settled = true;
+							nonceFound = true;
+							safeOnProgress(100);
+							resolve(data.nonce);
+							workers.forEach(w => w.terminate());
 							return;
 						}
-						if (data.log) {
-							setStatus(data.log, 'info');
-							return;
+
+						// sub-rango terminado → reencolar
+						if (data.done) {
+							const now = Date.now();
+							const elapsed = now - workerLastTime[i];
+							workerLastTime[i] = elapsed;
+							totalNoncesTried += (data.end - data.start || baseSubRange);
+
+							if (!nonceFound) assignNextRange(i);
 						}
-						if (data.perc !== undefined) {
-							safeOnProgress(Number(data.perc));
-							return;
+
+						// progreso parcial
+						if (data.perc !== undefined && !nonceFound) {
+							const percGlobal = ((totalNoncesTried + ((data.end - data.start) * data.perc / 100 || 0)) / globalMax) * 100;
+							safeOnProgress(Math.min(99.99, percGlobal.toFixed(2)));
 						}
-						if (data.nonce !== undefined) {
-							if (!settled) {
-								settled = true;
-								safeOnProgress(100);
-								resolve(data.nonce);
-								worker.terminate();
-							}
-						}
+
+						if (data.log) setStatus(`Worker ${i + 1}: ${data.log}`, 'info');
 					};
+
 					worker.onerror = (err) => {
 						if (!settled) {
 							settled = true;
 							safeOnProgress(100);
 							reject(new Error('Worker error: ' + (err?.message || err)));
-							worker.terminate();
+							workers.forEach(w => w.terminate());
 						}
 					};
+
+					assignNextRange(i); // primer sub-rango
 				}
-			);
+			});
 		}
 
 		// handleVerification: devuelve { success, token, message }
