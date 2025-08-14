@@ -66,4 +66,3 @@ foreach ($_POST as $k => $v) {
 $result .= '</pre>';
 render_result($result);
 exit;
-?>

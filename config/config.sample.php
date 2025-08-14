@@ -26,4 +26,3 @@ $config['cors_enabled'] = false;
 
 // Permitir cookies y tokens en solicitudes CORS (solo si cors_enabled = true)
 // $config['cors_allow_credentials'] = true;
-?>

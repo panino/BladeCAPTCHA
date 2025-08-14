@@ -23,4 +23,3 @@ if (!empty($config['cors_enabled']) && $config['cors_enabled'] === true) {
         }
     }
 }
-?>

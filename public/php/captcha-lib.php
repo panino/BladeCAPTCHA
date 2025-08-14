@@ -279,4 +279,3 @@ function processValidatePoW(string $signedChallenge, string $nonce, string $ip):
         return ['success' => false, 'message' => 'Proof of Work incorrecto', 'token_validacion' => $fakeToken];
     }
 }
-?>
