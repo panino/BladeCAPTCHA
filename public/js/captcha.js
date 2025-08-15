@@ -202,13 +202,14 @@
 			const minSubRange = isMobile ? 2000 : 5000;
 			const maxSubRange = isMobile ? 10000 : 20000;
 			const workersCount = isMobile
-				? Math.min(2, navigator.hardwareConcurrency || 2)
+				? Math.min(2, navigator.hardwareConcurrency || 1)
 				: Math.min(4, navigator.hardwareConcurrency || 4);
 			const globalMax = 500000; // límite absoluto de nonces
 			const timeFactor = isMobile ? 2 : 1;
 
 			let nextStart = 0;
 			let totalNoncesTried = 0;
+			let totalAttempts = 0;
 			let nonceFound = false;
 			let settled = false;
 
@@ -287,7 +288,10 @@
 							safeOnProgress(Math.min(99.99, percGlobal.toFixed(2)));
 						}
 
-						if (data.log) setStatus(`Worker ${i + 1}: ${data.log}`, 'info');
+						if (data.attempts !== undefined && !nonceFound) {
+							totalAttempts += data.attempts;
+							setStatus(`Calculating… (${totalAttempts} attempts)`, 'info');
+						}
 					};
 
 					worker.onerror = (err) => {

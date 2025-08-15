@@ -42,7 +42,8 @@ self.addEventListener('message', async (event) => {
         }
 
         if (loguear && nonce % 10000 === 0) {
-            self.postMessage({ log: `Calculating... (${nonce - start} attempts)` });
+			const processed = nonce - start;
+			self.postMessage({ attempts: processed });
         }
     }
 
