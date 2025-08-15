@@ -201,7 +201,9 @@
 			const baseSubRange = isMobile ? 5000 : 10000;
 			const minSubRange = isMobile ? 2000 : 5000;
 			const maxSubRange = isMobile ? 10000 : 20000;
-			const workersCount = isMobile ? 2 : Math.min(4, navigator.hardwareConcurrency || 4);
+			const workersCount = isMobile
+				? Math.min(2, navigator.hardwareConcurrency || 2)
+				: Math.min(4, navigator.hardwareConcurrency || 4);
 			const globalMax = 500000; // límite absoluto de nonces
 			const timeFactor = isMobile ? 2 : 1;
 
