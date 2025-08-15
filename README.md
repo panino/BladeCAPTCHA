@@ -70,9 +70,9 @@ BladeCAPTCHA/
    ```bash
    git clone https://github.com/panino/BladeCAPTCHA.git
    ```
-2. Copiar `config/config.sample.php` a `config/config.php` y editar los valores:
+2. Renombrar `config/config.sample.php` a `config/config.php` y editar los valores:
    ```bash
-   cp config/config.sample.php config/config.php
+   mv config/config.sample.php config/config.php
    nano config/config.php
    ```
 3. Asegurarse de que PHP 8.0+ y las siguientes extensiones estén instaladas: `openssl`, `mbstring` y `json`.
