@@ -1,5 +1,13 @@
 self.addEventListener('message', async (event) => {
-    const { challenge, difficulty, loguear, progress, start = 0, end = Infinity, timeFactor = 1 } = event.data;
+    const {
+        challenge,
+        difficulty,
+        loguear,
+        progress,
+        start = 0,
+        end = Infinity,
+        timeFactor = 1
+    } = event.data;
 
     const target = '0'.repeat(difficulty);
     const encoder = new TextEncoder();
@@ -37,13 +45,19 @@ self.addEventListener('message', async (event) => {
         }
 
         if (Date.now() - startTime > currentTimeLimit) {
-            self.postMessage({ done: true, partial: true, start, end });
+            // Avisar hasta dónde llegamos
+            self.postMessage({
+                done: true,
+                partial: true,
+                nextStart: nonce, 
+                end
+            });
             return;
         }
 
         if (loguear && nonce % 10000 === 0) {
-			const processed = nonce - start;
-			self.postMessage({ attempts: processed });
+            const processed = nonce - start;
+            self.postMessage({ attempts: processed });
         }
     }
 

@@ -207,7 +207,6 @@
 			const globalMax = 500000; // límite absoluto de nonces
 			const timeFactor = isMobile ? 2 : 1;
 
-			let nextStart = 0;
 			let totalNoncesTried = 0;
 			let totalAttempts = 0;
 			let nonceFound = false;
@@ -220,27 +219,36 @@
 			const progressEnabled = typeof config.onProgress === 'function';
 			const loguear = !!statusElement;
 
-			function assignNextRange(workerIndex) {
-				if (nonceFound || nextStart >= globalMax) return;
+			// Cola de rangos pendientes
+			const nextStartQueue = [{ start: 0, end: globalMax }];
 
-				// Ajuste dinámico según rendimiento
+			function requeueRange(start, end) {
+				if (start < end) {
+					nextStartQueue.unshift({ start, end });
+				}
+			}
+
+			function assignNextRange(workerIndex) {
+				if (nonceFound || !nextStartQueue.length) return;
+
+				const { start, end: originalEnd } = nextStartQueue.shift();
 				let lastTime = workerLastTime[workerIndex] || 0;
 				let lastSize = workerLastSize[workerIndex] || baseSubRange;
 
 				let newSize = lastSize;
 				if (lastTime > 0) {
-					const targetTime = 2000; // 2 segundos por sub-rango ideal
+					const targetTime = 2000; // 2s por sub-rango ideal
 					newSize = Math.min(
 						maxSubRange,
 						Math.max(minSubRange, Math.floor(lastSize * (targetTime / lastTime)))
 					);
 				}
 
-				const start = nextStart;
-				const end = Math.min(nextStart + newSize, globalMax);
-				nextStart = end;
+				const subEnd = Math.min(start + newSize, originalEnd);
 
-				workerLastSize[workerIndex] = end - start;
+				workerLastSize[workerIndex] = subEnd - start;
+				// Nota: `workerLastTime` contiene la duración del último sub-rango
+				// después de recibir el mensaje, aunque al enviarlo inicialmente guarda un timestamp.
 				workerLastTime[workerIndex] = Date.now();
 
 				workers[workerIndex].postMessage({
@@ -249,9 +257,14 @@
 					loguear,
 					progress: progressEnabled,
 					start,
-					end,
+					end: subEnd,
 					timeFactor
 				});
+
+				// Si queda resto de este rango, lo dejamos en cola
+				if (subEnd < originalEnd) {
+					nextStartQueue.unshift({ start: subEnd, end: originalEnd });
+				}
 			}
 
 			return new Promise((resolve, reject) => {
@@ -262,7 +275,7 @@
 					worker.onmessage = (ev) => {
 						const data = ev.data || {};
 
-						// nonce encontrado → resolve + 100% progreso
+						// nonce encontrado
 						if (data.nonce !== undefined && !settled) {
 							settled = true;
 							nonceFound = true;
@@ -272,22 +285,39 @@
 							return;
 						}
 
-						// sub-rango terminado → reencolar
+						// sub-rango terminado
 						if (data.done) {
 							const now = Date.now();
 							const elapsed = now - workerLastTime[i];
 							workerLastTime[i] = elapsed;
-							totalNoncesTried += (data.end - data.start || baseSubRange);
+
+							if (data.partial) {
+								// Sumar lo que sí se procesó
+								totalNoncesTried += (data.nextStart - data.start) || 0;
+
+								// Reencolar lo que falta
+								if (data.nextStart < data.end) {
+									requeueRange(data.nextStart, data.end);
+								}
+							} else {
+								// Rango completo procesado
+								totalNoncesTried += (data.end - data.start) || baseSubRange;
+							}
 
 							if (!nonceFound) assignNextRange(i);
 						}
 
 						// progreso parcial
 						if (data.perc !== undefined && !nonceFound) {
-							const percGlobal = ((totalNoncesTried + ((data.end - data.start) * data.perc / 100 || 0)) / globalMax) * 100;
+							const percGlobal = (
+								(totalNoncesTried +
+									((data.end - data.start) * data.perc / 100 || 0)) /
+								globalMax
+							) * 100;
 							safeOnProgress(Math.min(99.99, percGlobal.toFixed(2)));
 						}
 
+						// conteo de intentos
 						if (data.attempts !== undefined && !nonceFound) {
 							totalAttempts += data.attempts;
 							setStatus(`Calculating… (${totalAttempts} attempts)`, 'info');
