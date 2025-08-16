@@ -208,7 +208,6 @@
 			const timeFactor = isMobile ? 2 : 1;
 
 			let totalNoncesTried = 0;
-			let totalAttempts = 0;
 			let nonceFound = false;
 			let settled = false;
 
@@ -318,9 +317,8 @@
 						}
 
 						// conteo de intentos
-						if (data.attempts !== undefined && !nonceFound) {
-							totalAttempts += data.attempts;
-							setStatus(`Calculating… (${totalAttempts} attempts)`, 'info');
+						if (data.log !== undefined && !nonceFound) {
+							setStatus(`Calculating… (${totalNoncesTried} attempts)`, 'info');
 						}
 					};
 
