@@ -314,7 +314,7 @@
 									((data.end - data.start) * data.perc / 100 || 0)) /
 								globalMax
 							) * 100;
-							safeOnProgress(Math.min(99.99, percGlobal.toFixed(2)));
+							safeOnProgress(Math.min(99.99, Math.max(lastProgress, percGlobal.toFixed(2))));
 						}
 
 						// conteo de intentos
