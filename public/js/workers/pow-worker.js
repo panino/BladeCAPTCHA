@@ -6,7 +6,8 @@ self.addEventListener('message', async (event) => {
         progress,
         start = 0,
         end = Infinity,
-        timeFactor = 1
+        timeFactor = 1,
+		targetTime
     } = event.data;
 
     const target = '0'.repeat(difficulty);
@@ -21,7 +22,7 @@ self.addEventListener('message', async (event) => {
 
     let nonce = start;
     const startTime = Date.now();
-    const baseTimeLimit = 10000 + difficulty * 3000;
+    const baseTimeLimit = Math.max(targetTime * 3, difficulty * 2000);
     const currentTimeLimit = baseTimeLimit * timeFactor;
     let lastPerc = 0;
 

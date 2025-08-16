@@ -206,7 +206,7 @@
 				: Math.min(4, navigator.hardwareConcurrency || 4);
 			const globalMax = 500000; // límite absoluto de nonces
 			const timeFactor = isMobile ? 2 : 1;
-
+			const targetTime = 2000; // 2s por sub-rango ideal
 			let totalNoncesTried = 0;
 			let nonceFound = false;
 			let settled = false;
@@ -236,7 +236,6 @@
 
 				let newSize = lastSize;
 				if (lastTime > 0) {
-					const targetTime = 2000; // 2s por sub-rango ideal
 					newSize = Math.min(
 						maxSubRange,
 						Math.max(minSubRange, Math.floor(lastSize * (targetTime / lastTime)))
@@ -257,7 +256,8 @@
 					progress: progressEnabled,
 					start,
 					end: subEnd,
-					timeFactor
+					timeFactor,
+					targetTime
 				});
 
 				// Si queda resto de este rango, lo dejamos en cola
