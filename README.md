@@ -145,3 +145,14 @@ Esto garantiza que la verificación siga siendo segura sin causar demoras excesi
 ## Licencia
 
 Este proyecto está licenciado bajo la licencia MIT. Consulta el archivo [LICENSE](LICENSE) para más información.
+
+## Créditos
+
+La fuente de emoji utilizada en los ejemplos es **Twemoji**, cortesía de Twitter.  
+La fuente específica proviene del proyecto **twemoji-colr** de Mozilla.  
+Ambos proyectos están bajo licencia **CC-BY-4.0**.
+
+Enlaces de referencia:  
+- Twemoji: [https://github.com/twitter/twemoji](https://github.com/twitter/twemoji)  
+- twemoji-colr: [https://github.com/mozilla/twemoji-colr](https://github.com/mozilla/twemoji-colr)
+
