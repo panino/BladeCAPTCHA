@@ -1,3 +1,9 @@
+/*
+ * La fuente de emoji utilizada en este sitio es Twemoji,
+ * cortesía de Twitter, Inc.
+ * Con licencia CC-BY 4.0: https://creativecommons.org/licenses/by/4.0/
+ * Fuente: https://github.com/twitter/twemoji
+ */
 @font-face {
   font-family: 'Twemoji';
   src : url('../fonts/twemoji-mozilla.woff2') format('woff2'),
