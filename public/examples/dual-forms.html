@@ -35,6 +35,7 @@
 				top: 0;
 				z-index: 1000;
 				flex:none;
+				text-align:center;
 			}
 
 			.sticky-header nav {
@@ -51,6 +52,21 @@
 				font-size: 1.2rem;
 				font-weight: 700;
 				text-decoration: none;
+				display:inline-flex;
+				height: 45px;
+				width: 190px;
+				position:relative;
+				outline:none;
+				transition: all .35s;
+				flex:none;
+				align-items:center;
+			}
+			.sticky-header .logo:hover,.sticky-header .logo:focus{
+				opacity:.6;
+			}
+			.sticky-header .logo img{
+				width:auto;
+				height:45px;
 			}
 
 			.sticky-header .nav-links {
