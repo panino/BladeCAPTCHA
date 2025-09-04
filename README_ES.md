@@ -120,10 +120,13 @@ import { initCaptcha } from './js/captcha.js';
 
 ---
 
-## Detección de rendimiento y ajuste dinámico
+## Ajuste de la ejecución
 
-BladeCAPTCHA mide el tiempo que tarda el dispositivo en resolver un desafío de prueba y ajusta automáticamente la dificultad.  
-Esto garantiza seguridad sin causar demoras excesivas, especialmente en dispositivos móviles o de bajo rendimiento.
+BladeCAPTCHA optimiza dinámicamente los parámetros de ejecución de su proof-of-work (como el número de workers en paralelo o el tamaño de los lotes de cálculo) en función de las capacidades del hardware del dispositivo.
+
+Esta optimización garantiza que dispositivos con menor potencia de procesamiento, como los móviles, completen la verificación con agilidad, mientras se mantiene un alto nivel de seguridad contra bots.
+
+Todo el proceso de cálculo y ajuste se realiza localmente en el navegador. En ningún caso se envía información del hardware o métricas de rendimiento a servidores externos, garantizando así la plena privacidad del usuario.
 
 ---
 
