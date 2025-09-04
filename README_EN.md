@@ -14,8 +14,7 @@ It offers two usage modes:
 - **No cookies**: important for compliance with privacy regulations.
 - **Accessible**: designed to be usable with screen readers.
 - **Self-hosted**: full control over code and configuration.
-- **Adaptive protection**: adjusts challenge difficulty based on client behavior and performance.
-- **Mobile optimized**: detects challenge-solving speed and adjusts difficulty to avoid overloading slower devices.
+- **Adaptive protection**: adjusts the challenge execution based on the user’s device capabilities and performance.
 
 ---
 

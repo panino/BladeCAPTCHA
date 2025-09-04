@@ -14,8 +14,7 @@ Permite dos modos de uso:
 - **No utiliza cookies**: importante para cumplir con regulaciones de privacidad.
 - **Accesible**: diseñado para ser usable con lectores de pantalla.
 - **Auto-hosteado**: control total sobre el código y la configuración.
-- **Protección adaptativa**: ajusta la dificultad de los desafíos según el comportamiento y rendimiento del cliente.
-- **Optimizado para móviles**: detecta la velocidad de resolución de un desafío de prueba y adapta la dificultad para no sobrecargar dispositivos más lentos.
+- **Protección adaptativa**: ajusta la ejecución del desafío según la capacidad y el rendimiento del dispositivo del usuario.
 
 ---
 

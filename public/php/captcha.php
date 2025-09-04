@@ -1,90 +1,73 @@
 <?php
-// captcha.php (endpoint público)
 namespace Captcha;
+// Evitar caching
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
 
+// Contenido JSON por defecto
 header('Content-Type: application/json; charset=utf-8');
+
+// Seguridad adicional opcional
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: SAMEORIGIN');
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'captcha-lib.php';
 
-// Ejecutar limpieza ocasional (no cada request)
-if (rand(1, 100) === 1) {
-    cleanOldRateLogs();
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Content-Type: application/json');
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
-    exit;
-}
-
 $rawBody = file_get_contents('php://input');
-$data = json_decode($rawBody, true);
-if (!is_array($data)) $data = [];
+$data = json_decode($rawBody, true) ?: [];
 
 $proceso = $data['proceso'] ?? '';
 $claveCaptcha = $data['claveCaptcha'] ?? '';
 
-$ip = getClientIPKey($claveCaptcha);
+// Limpieza ocasional de archivos antiguos
+if (rand(1, 100) === 1) {
+    cleanOldRateLogs();
+}
 
-header('Content-Type: application/json');
+$ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+if (!checkRateLimit($ip)) {
+    http_response_code(429);
+    echo json_encode(['success' => false, 'message' => 'Too many requests']);
+    exit;
+}
 
 switch ($proceso) {
-    case 'getPerformanceChallenge':
-        try {
-            $resp = generatePerformanceChallenge(); // puede lanzar RuntimeException
-            echo json_encode(array_merge(['success' => true], $resp));
-        } catch (\RuntimeException $e) {
-            // Error interno: loggear y devolver mensaje genérico
-            error_log('getPerformanceChallenge error: ' . $e->getMessage());
-            respondJsonError('Internal error while generating the challenge', 500, 'server_error');
-        } catch (\Exception $e) {
-            error_log('getPerformanceChallenge unexpected: ' . $e->getMessage());
-            respondJsonError('Unexpected error', 500, 'server_error');
-        }
-        break;
-
-    case 'verifyPerformanceChallenge':
-        try {
-            $resp = validatePerformanceChallenge($data); // puede lanzar excepciones
-            echo json_encode(array_merge(['success' => true], $resp));
-        } catch (\InvalidArgumentException $e) {
-            // Error del cliente (input inválido; no logueamos el error adrede)
-            respondJsonError($e->getMessage(), 400, 'invalid_input');
-        } catch (\RuntimeException $e) {
-            // Error interno (no exponer detalles)
-            error_log('validatePerformanceChallenge runtime error: ' . $e->getMessage());
-            respondJsonError('Internal error while validating the challenge', 500, 'server_error');
-        } catch (\Exception $e) {
-            error_log('validatePerformanceChallenge unexpected: ' . $e->getMessage());
-            respondJsonError('Unexpected error', 500, 'server_error');
-        }
-        break;
 
     case 'GET_POW_CHALLENGE':
-        // Esta función no lanza excepciones en captcha-lib.php, devuelve datos directamente
-        $info = readRateLimitData($ip);
+        if (!registerCaptchaKey($claveCaptcha)) {
+            respondJsonError('Could not register captcha key', 500, 'server_error');
+        }
         echo json_encode([
             'challenge' => generateSignedChallenge(),
-            'difficulty' => $info['difficulty'] ?? CAPTCHA_DIFFICULTY,
+            'difficulty' => CAPTCHA_DIFFICULTY,
             'instructions' => 'Solve the cryptographic challenge to continue'
         ]);
         break;
 
     case 'VALIDATE_POW_CHALLENGE':
-        $signedChallenge = $data['challenge'] ?? '';
-        $nonce = (string)($data['nonce'] ?? '');
-        $resp = processValidatePoW($signedChallenge, $nonce, $ip);
-        if (isset($resp['status']) && is_int($resp['status'])) {
-            http_response_code($resp['status']);
-        }
-        echo json_encode($resp);
-        break;
+		if (!validateCaptchaKey($claveCaptcha)) {
+			respondJsonError('Captcha key not registered', 400, 'invalid_key');
+		}
+
+		if (!validateCaptchaTiming($claveCaptcha, 10)) {
+			respondJsonError('Please wait before retrying', 429, 'too_soon');
+		}
+
+		$signedChallenge = $data['challenge'] ?? '';
+		$nonce = (string)($data['nonce'] ?? '');
+		$resp = processValidatePoW($signedChallenge, $nonce, $claveCaptcha);
+		echo json_encode($resp);
+		break;
+
 
     case 'VALIDATE_POW_TOKEN':
         $token = (string)($data['token'] ?? '');
         $isValid = validateToken($token);
-        echo json_encode(['success' => $isValid, 'message' => $isValid ? 'The token is valid' : 'The token is not valid or has expired']);
+        echo json_encode([
+            'success' => $isValid,
+            'message' => $isValid ? 'The token is valid' : 'The token is not valid or has expired'
+        ]);
         break;
 
     default:
@@ -92,3 +75,4 @@ switch ($proceso) {
         echo json_encode(['success' => false, 'message' => 'Unknown action']);
         break;
 }
+
